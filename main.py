@@ -1,4 +1,5 @@
 import pygame
+from character import Player
 import character
 
 
@@ -81,7 +82,9 @@ SCREEN_HEIGHT = 1080
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Worms ESGI")
 
-player = pygame.Rect((300, 250, 50, 50))
+player1 = Player("Player 1")
+print("Player 1 position:", player1.position.x, player1.position.y)
+
 
 scene = 1 # 1 for main menu, 2 for game
 
