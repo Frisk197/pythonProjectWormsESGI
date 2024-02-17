@@ -106,7 +106,7 @@ def loadGame(screen, teams, worms):
     clock = pygame.time.Clock()
     while runningGame:
         if DESTRUCTIBLE:
-            drawDestructibleWorld(screen, map)
+            drawDestructibleWorldOptimized(screen, map)
         else:
             screen.fill((0,0,0))
             drawWorld(screen, map)
@@ -169,6 +169,26 @@ def drawDestructibleWorldFull(screen, bitMap):
             else:
                 pygame.draw.rect(screen, (0, 0, 0), pygame.Rect((x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE)))
 
+def drawDestructibleWorldOptimized(screen, bitMap):
+    print(len(bitMap))
+    print(SCREEN_WIDTH/TILE_SIZE)
+    screen.fill((0, 0, 0))
+    polygoneMap = []
+    x = 0
+    y = int(SCREEN_HEIGHT/TILE_SIZE)-1
+    polygoneMap.append((x, y))
+    for x in range(int(SCREEN_WIDTH/TILE_SIZE)):
+        while bitMap[x][y]:
+            y -= 1
+        while not bitMap[x][y]:
+            y += 1
+        polygoneMap.append((x*TILE_SIZE, y*TILE_SIZE))
+    polygoneMap.append((SCREEN_WIDTH, SCREEN_HEIGHT))
+    polygoneMap.append((0, SCREEN_HEIGHT))
+    pygame.draw.polygon(screen, (255, 0, 0), polygoneMap)
+
+
+
 def drawDestructibleWorld(screen, bitMap):
     for x in range(0, int(SCREEN_WIDTH/TILE_SIZE)):
         for y in range(0, int(SCREEN_HEIGHT/TILE_SIZE)):
@@ -180,7 +200,7 @@ pygame.init()
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
 TERRAIN_HEIGHT = 500
-TILE_SIZE = 5
+TILE_SIZE = 1
 SEED = random.randint(900000, 99999999)
 SET_SEED = 9197368
 SEED_Y_OFFSET = 200
