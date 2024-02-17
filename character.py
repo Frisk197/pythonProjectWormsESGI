@@ -1,4 +1,5 @@
 from random import random
+from setting import *
 
 import pygame
 
@@ -13,6 +14,13 @@ class Position:
         self.wind = wind
 
 
+class Weapons:
+    def __init__(self, name, player, damage=50):
+        self.name = name
+        self.position = Position(name, player.position.x, player.position.y)
+        self.damage = damage
+
+
 class Player:
     def __init__(self, name, health=100):
         self.name = name
@@ -20,7 +28,9 @@ class Player:
         self.stockRocket = 5
         self.stockGrenade = 2
         self.position = Position(name, random(), random())
-        #self.image = pygame.image.load("")
+        self.weapons = [Weapons('rocket', self), Weapons('grenade', self)]
+        self.image = pygame.image.load('images/indication_arrows/up-arrow.png')
+        self.rect = self.image.get_rect()
 
     def shoot(self):
         if self.stockRocket > 0:
@@ -28,7 +38,13 @@ class Player:
         else:
             print(f"{self.name} has no rocket")
 
-    def take_damage(self, damage):
+    def sendGrenade(self,):
+        if self.stockGrenade > 0:
+            self.stockGrenade -= 1
+        else:
+            print(f"{self.name} has no grenade")
+
+    def takeDamage(self, damage):
         self.health -= damage
         if self.health <= 0:
              print(f"{self.name} die")
@@ -37,6 +53,9 @@ class Player:
 
     def reload(self):
         self.stockRocket = 5
+
+    def draw(self):
+        screen.blit(self.image, self.rect)
 
 
 def movements(key, character):
