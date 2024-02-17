@@ -1,5 +1,4 @@
 from random import random
-from setting import *
 
 import pygame
 
@@ -13,13 +12,6 @@ class Position:
         self.speed_y = speed_y
         self.gravity = gravity
         self.wind = wind
-
-
-class Weapons:
-    def __init__(self, name, player, damage=50):
-        self.name = name
-        self.position = Position(name, player.position.x, player.position.y)
-        self.damage = damage
 
 
 class Player:
@@ -47,13 +39,7 @@ class Player:
         else:
             print(f"{self.name} has no rocket")
 
-    def sendGrenade(self,):
-        if self.stockGrenade > 0:
-            self.stockGrenade -= 1
-        else:
-            print(f"{self.name} has no grenade")
-
-    def takeDamage(self, damage):
+    def take_damage(self, damage):
         self.health -= damage
         if self.health <= 0:
             print(f"{self.name} die")
@@ -62,9 +48,6 @@ class Player:
 
     def reload(self):
         self.stockRocket = 5
-
-    def draw(self):
-        screen.blit(self.image, self.rect)
 
 
 def movements(key, character):

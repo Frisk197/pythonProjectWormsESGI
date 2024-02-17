@@ -3,7 +3,6 @@ import random
 
 import pygame
 from character import Player
-from setting import *
 import character
 from TerrainTest import Terrain
 
@@ -36,10 +35,10 @@ def loadMainMenu(screen, teams, worms):
         line1 = font.render('équipes: ' + str(teams) + '', True, (255, 0, 0))
         line2 = font.render('worms par équipes: ' + str(worms), True, (255, 0, 0))
 
-        upArrow = pygame.image.load('images/indication_arrows/up-arrow.png')
-        downArrow = pygame.image.load('images/indication_arrows/down-arrow.png')
-        leftArrow = pygame.image.load('images/indication_arrows/left-arrow.png')
-        rightArrow = pygame.image.load('images/indication_arrows/right-arrow.png')
+        upArrow = pygame.image.load('images/up-arrow.png')
+        downArrow = pygame.image.load('images/down-arrow.png')
+        leftArrow = pygame.image.load('images/left-arrow.png')
+        rightArrow = pygame.image.load('images/right-arrow.png')
 
         screen.blit(line1,
                     ((SCREEN_WIDTH / 2) - (line1.get_width() / 2) - 50, (SCREEN_HEIGHT / 2) - (line1.get_height())))
@@ -112,18 +111,19 @@ def loadGame(screen, teams, worms):
         font = pygame.font.SysFont(None, 24)
         img = font.render('c le jeu ' + str(teams) + ' teams et ' + str(worms) + ' worms', True, (255, 0, 0))
         screen.blit(img, (20, 20))
-        player1 = Player("Player 1")
-        player1.draw()
-        print("Player 1 position:", player1.position.x, player1.position.y)
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
         pygame.display.update()
 
 
+pygame.init()
 
+SCREEN_WIDTH = 1920
+SCREEN_HEIGHT = 1080
 
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Worms ESGI")
 
 terrain = Terrain(SCREEN_WIDTH, SCREEN_HEIGHT, (0, 255, 0), 24)  # Exemple de terrain vert
 clock = pygame.time.Clock()
