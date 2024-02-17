@@ -1,4 +1,54 @@
+from random import random
+
 import pygame
+
+
+class Position:
+    def __init__(self, name, x, y, speed_x=5, speed_y=5, gravity=9.8, wind=0):
+        self.name = f"position of {name}"
+        self.x = x
+        self.y = y
+        self.speed_x = speed_x
+        self.speed_y = speed_y
+        self.gravity = gravity
+        self.wind = wind
+
+
+class Player:
+    def __init__(self, name, health=100 , image_path="",flipped=False):
+        self.name = name
+        self.health = health
+        self.stockRocket = 5
+        self.stockGrenade = 2
+        self.position = Position(name,0,0)
+        self.flipped = flipped
+        if image_path:
+            self.image = pygame.image.load(image_path)
+            self.rect = self.image.get_rect()
+        else:
+            self.image = None
+            self.rect = None
+
+    def draw(self, screen):
+        if self.image is not None:
+            screen.blit(self.image, (self.position.x, self.position.y - self.rect.height))
+
+    def shoot(self):
+        if self.stockRocket > 0:
+            self.stockRocket -= 1
+        else:
+            print(f"{self.name} has no rocket")
+
+    def take_damage(self, damage):
+        self.health -= damage
+        if self.health <= 0:
+            print(f"{self.name} die")
+        else:
+            print(f"{self.name} has lost health")
+
+    def reload(self):
+        self.stockRocket = 5
+
 
 def movements(key, character):
     up_movement = key[pygame.K_z] or key[pygame.K_UP]

@@ -1,7 +1,11 @@
+import os.path
+
 import pygame
+from character import Player
 import character
 import random
 import noise
+from TerrainTest import Terrain
 
 
 def loadMainMenu(screen, teams, worms):
@@ -37,20 +41,26 @@ def loadMainMenu(screen, teams, worms):
         leftArrow = pygame.image.load('images/left-arrow.png')
         rightArrow = pygame.image.load('images/right-arrow.png')
 
-        screen.blit(line1, ((SCREEN_WIDTH/2) - (line1.get_width()/2) - 50, (SCREEN_HEIGHT/2) - (line1.get_height())))
-        screen.blit(upArrow, ((SCREEN_WIDTH/2) + (line1.get_width()/2), (SCREEN_HEIGHT/2) - (line1.get_height()*1.5)))
-        screen.blit(downArrow, ((SCREEN_WIDTH/2) + (line1.get_width()/2), (SCREEN_HEIGHT/2) - (line1.get_height()/1.5)))
+        screen.blit(line1,
+                    ((SCREEN_WIDTH / 2) - (line1.get_width() / 2) - 50, (SCREEN_HEIGHT / 2) - (line1.get_height())))
+        screen.blit(upArrow,
+                    ((SCREEN_WIDTH / 2) + (line1.get_width() / 2), (SCREEN_HEIGHT / 2) - (line1.get_height() * 1.5)))
+        screen.blit(downArrow,
+                    ((SCREEN_WIDTH / 2) + (line1.get_width() / 2), (SCREEN_HEIGHT / 2) - (line1.get_height() / 1.5)))
 
-        screen.blit(line2, ((SCREEN_WIDTH/2) - (line2.get_width()/2), (SCREEN_HEIGHT/2) + (line2.get_height())))
-        screen.blit(leftArrow, ((SCREEN_WIDTH / 2) + (line2.get_width() / 2), (SCREEN_HEIGHT / 2) + (line2.get_height())))
-        screen.blit(rightArrow, ((SCREEN_WIDTH / 2) + (line2.get_width() / 2) + 50, (SCREEN_HEIGHT / 2) + (line2.get_height())))
+        screen.blit(line2, ((SCREEN_WIDTH / 2) - (line2.get_width() / 2), (SCREEN_HEIGHT / 2) + (line2.get_height())))
+        screen.blit(leftArrow,
+                    ((SCREEN_WIDTH / 2) + (line2.get_width() / 2), (SCREEN_HEIGHT / 2) + (line2.get_height())))
+        screen.blit(rightArrow,
+                    ((SCREEN_WIDTH / 2) + (line2.get_width() / 2) + 50, (SCREEN_HEIGHT / 2) + (line2.get_height())))
 
         line3 = font.render('Appuyez sur ENTRER pour commencer', True, (255 * opacity, 0, 0))
-        screen.blit(line3, ((SCREEN_WIDTH / 2) - (line3.get_width() / 2), (SCREEN_HEIGHT / 2) + (line3.get_height()*3)))
+        screen.blit(line3,
+                    ((SCREEN_WIDTH / 2) - (line3.get_width() / 2), (SCREEN_HEIGHT / 2) + (line3.get_height() * 3)))
 
         key = pygame.key.get_pressed()
 
-        #Team Selection
+        # Team Selection
         if key[pygame.K_UP] and not upPressed:
             upPressed = True
             teams += 1
@@ -177,23 +187,76 @@ REPEAT = random.randint(999999, 999999999)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Worms ESGI")
 
-player = pygame.Rect((300, 250, 50, 50))
+terrain = Terrain(SCREEN_WIDTH, SCREEN_HEIGHT, (0, 255, 0), 24)  # Exemple de terrain vert
+clock = pygame.time.Clock()
 
-scene = 1 # 1 for main menu, 2 for game
+# Nombre d'équipes
+teams = 3
+
+# Liste des chemins d'accès aux images des joueurs pour chaque équipe
+team_image_paths = [f"images/Viking{i}.png" for i in range(1, teams + 1)]  # Ajoutez des chemins pour chaque équipe supplémentaire
+
+worms = 3  # Nombre de joueurs par équipe
+
+# Liste pour stocker les joueurs de chaque équipe
+teams_players = []
+
+# Définir la largeur minimale entre les joueurs
+min_distance_between_players = 50  # Largeur minimale entre les joueurs
+
+# Liste pour stocker les positions occupées
+occupied_positions = []
+
+# Positionnement aléatoire des joueurs pour chaque équipe
+for team_image_path in team_image_paths:
+    team_players = []
+
+    for _ in range(worms):
+        player = Player(SCREEN_WIDTH, SCREEN_HEIGHT, team_image_path)
+        player_y = SCREEN_HEIGHT - terrain.cube_height
+        player.position.y = player_y
+
+        while True:
+            player_x = random.randint(0, SCREEN_WIDTH - player.rect.width)  # Utilisation de la largeur du rectangle de l'image du joueur
+            valid_position = True
+            for pos in occupied_positions:
+                if abs(player_x - pos) < min_distance_between_players:
+                    valid_position = False
+                    break
+            if valid_position:
+                player_x = min(player_x, SCREEN_WIDTH - player.rect.width)  # Ajustement pour éviter de sortir de l'écran
+                occupied_positions.append(player_x)
+                player.position.x = player_x
+                break
+
+        team_players.append(player)
+
+    # Flip aléatoirement tous les joueurs de l'équipe
+    if random.choice([True, False]):
+        for player in team_players:
+            player.image = pygame.transform.flip(player.image, True, False)
+
+    teams_players.append(team_players)
+
+# Liste pour stocker tous les joueurs
+all_players = sum(teams_players, [])
 
 running = True
-
-teams = 2
-worms = 4
-
 while running:
-
-    teamsAndWorms = loadMainMenu(screen, teams, worms)
-    loadGame(screen, teamsAndWorms[0], teamsAndWorms[1])
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
+    screen.fill((0, 0, 0))  # Efface l'écran
+    terrain.draw(screen)  # Dessine le terrain
+
+    # Dessine tous les joueurs sur le terrain
+    for team_players in teams_players:
+        # Dessiner les joueurs de l'équipe
+        for player in team_players:
+            player.draw(screen)
+
+    pygame.display.flip()
+    clock.tick(60)
 
 pygame.quit()
