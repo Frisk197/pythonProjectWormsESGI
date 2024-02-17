@@ -24,34 +24,75 @@ def characterMovements(key, character):
             character.move_ip(0, 2)
 
 
-def loadMainMenu(screen, teams):
+def loadMainMenu(screen, teams, worms):
+    upPressed = False
+    downPressed = False
+    rightPressed = False
+    leftPressed = False
     runningMenu = True
     while runningMenu:
         screen.fill((0, 0, 0))
         font = pygame.font.SysFont(None, 24)
-        img = font.render('' + teams, True, (255, 0, 0))
+        img = font.render('' + str(teams) + ' ' + str(worms), True, (255, 0, 0))
         screen.blit(img, (20, 20))
+        key = pygame.key.get_pressed()
+
+        #Team Selection
+        if key[pygame.K_UP] and not upPressed:
+            upPressed = True
+            teams += 1
+            if teams > 8:
+                teams = 8
+        elif key[pygame.K_DOWN] and not downPressed:
+            downPressed = True
+            teams -= 1
+            if teams < 2:
+                teams = 2
+        if not key[pygame.K_UP]:
+            upPressed = False
+        if not key[pygame.K_DOWN]:
+            downPressed = False
+        #
+
+        # Worms Selection
+        if key[pygame.K_RIGHT] and not rightPressed:
+            rightPressed = True
+            worms += 1
+            if worms > 4:
+                worms = 4
+        elif key[pygame.K_LEFT] and not leftPressed:
+            leftPressed = True
+            worms -= 1
+            if worms < 1:
+                worms = 1
+        if not key[pygame.K_RIGHT]:
+            rightPressed = False
+        if not key[pygame.K_LEFT]:
+            leftPressed = False
+        #
+
+        if key[pygame.K_RETURN]:
+            runningMenu = False
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
         pygame.display.update()
-    return 2
+    return (teams, worms)
 
 
-def loadGame(screen, teams):
+def loadGame(screen, teams, worms):
     runningGame = True
     while runningGame:
         screen.fill((0, 0, 0))
         #game here
         font = pygame.font.SysFont(None, 24)
-        img = font.render('c le jeu', True, (255, 0, 0))
+        img = font.render('c le jeu ' + str(teams) + ' teams et ' + str(worms) + ' worms', True, (255, 0, 0))
         screen.blit(img, (20, 20))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
         pygame.display.update()
-    return 1
 
 
 pygame.init()
@@ -68,16 +109,13 @@ scene = 1 # 1 for main menu, 2 for game
 
 running = True
 
+teams = 2
+worms = 4
+
 while running:
 
-    teams = 1
-
-    if scene == 1:
-        scene = loadMainMenu(screen, teams)
-    elif scene == 2:
-        scene = loadGame(screen, teams)
-    else:
-        pygame.quit()
+    teamsAndWorms = loadMainMenu(screen, teams, worms)
+    loadGame(screen, teamsAndWorms[0], teamsAndWorms[1])
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
