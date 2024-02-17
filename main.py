@@ -1,3 +1,5 @@
+import os.path
+
 import pygame
 import character
 
@@ -8,11 +10,44 @@ def loadMainMenu(screen, teams, worms):
     rightPressed = False
     leftPressed = False
     runningMenu = True
+    opacityUp = True
+    opacity = 0
     while runningMenu:
+
+        if opacityUp and opacity < 1:
+            opacity += 0.005
+        elif not opacityUp and opacity > 0:
+            opacity -= 0.005
+        elif opacityUp and opacity >= 1:
+            opacity = 1
+            opacityUp = False
+        elif not opacityUp and opacity <= 0:
+            opacity = 0
+            opacityUp = True
+
         screen.fill((0, 0, 0))
-        font = pygame.font.SysFont(None, 24)
-        img = font.render('' + str(teams) + ' ' + str(worms), True, (255, 0, 0))
-        screen.blit(img, (20, 20))
+
+        font = pygame.font.SysFont(None, 70)
+
+        line1 = font.render('équipes: ' + str(teams) + '', True, (255, 0, 0))
+        line2 = font.render('worms par équipes: ' + str(worms), True, (255, 0, 0))
+
+        upArrow = pygame.image.load('images/up-arrow.png')
+        downArrow = pygame.image.load('images/down-arrow.png')
+        leftArrow = pygame.image.load('images/left-arrow.png')
+        rightArrow = pygame.image.load('images/right-arrow.png')
+
+        screen.blit(line1, ((SCREEN_WIDTH/2) - (line1.get_width()/2) - 50, (SCREEN_HEIGHT/2) - (line1.get_height())))
+        screen.blit(upArrow, ((SCREEN_WIDTH/2) + (line1.get_width()/2), (SCREEN_HEIGHT/2) - (line1.get_height()*1.5)))
+        screen.blit(downArrow, ((SCREEN_WIDTH/2) + (line1.get_width()/2), (SCREEN_HEIGHT/2) - (line1.get_height()/1.5)))
+
+        screen.blit(line2, ((SCREEN_WIDTH/2) - (line2.get_width()/2), (SCREEN_HEIGHT/2) + (line2.get_height())))
+        screen.blit(leftArrow, ((SCREEN_WIDTH / 2) + (line2.get_width() / 2), (SCREEN_HEIGHT / 2) + (line2.get_height())))
+        screen.blit(rightArrow, ((SCREEN_WIDTH / 2) + (line2.get_width() / 2) + 50, (SCREEN_HEIGHT / 2) + (line2.get_height())))
+
+        line3 = font.render('Appuyez sur ENTRER pour commencer', True, (255 * opacity, 0, 0))
+        screen.blit(line3, ((SCREEN_WIDTH / 2) - (line3.get_width() / 2), (SCREEN_HEIGHT / 2) + (line3.get_height()*3)))
+
         key = pygame.key.get_pressed()
 
         #Team Selection
