@@ -141,7 +141,7 @@ def genWorldDestructible():
     for y in range(0, SCREEN_WIDTH, TILE_SIZE):
         height = int(noise.pnoise1(y * (SEED * 0.00000000007), repeat=REPEAT) * TERRAIN_HEIGHT / 2) + SEED_Y_OFFSET
         heightMap.append(height)
-    print(heightMap)
+    # print(heightMap)
     bitMap = []
     for x in range(0, int(SCREEN_WIDTH/TILE_SIZE)):
         bitMapY = []
@@ -150,7 +150,7 @@ def genWorldDestructible():
                 bitMapY.append(1)
             else:
                 bitMapY.append(0)
-        print(bitMapY)
+        # print(bitMapY)
         bitMap.append(bitMapY)
     # print(bitMap)
     return bitMap
