@@ -129,12 +129,12 @@ terrain = Terrain(SCREEN_WIDTH, SCREEN_HEIGHT, (0, 255, 0), 24)  # Exemple de te
 clock = pygame.time.Clock()
 
 # Nombre d'équipes
-num_teams = 2
+teams = 3
 
 # Liste des chemins d'accès aux images des joueurs pour chaque équipe
-team_image_paths = [f"images/Viking{i}.png" for i in range(1, num_teams + 1)]  # Ajoutez des chemins pour chaque équipe supplémentaire
+team_image_paths = [f"images/Viking{i}.png" for i in range(1, teams + 1)]  # Ajoutez des chemins pour chaque équipe supplémentaire
 
-num_players_per_team = 4  # Nombre de joueurs par équipe
+worms = 3  # Nombre de joueurs par équipe
 
 # Liste pour stocker les joueurs de chaque équipe
 teams_players = []
@@ -149,7 +149,7 @@ occupied_positions = []
 for team_image_path in team_image_paths:
     team_players = []
 
-    for _ in range(num_players_per_team):
+    for _ in range(worms):
         player = Player(SCREEN_WIDTH, SCREEN_HEIGHT, team_image_path)
         player_y = SCREEN_HEIGHT - terrain.cube_height
         player.position.y = player_y
