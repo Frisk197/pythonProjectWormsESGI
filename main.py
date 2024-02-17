@@ -4,6 +4,7 @@ import pygame
 from character import *
 import random
 import noise
+from setting import *
 from TerrainTest import Terrain
 
 
@@ -239,19 +240,6 @@ def drawDestructibleWorldFullOptimized(screen, bitMap):
 
 pygame.init()
 
-SCREEN_WIDTH = 1920
-SCREEN_HEIGHT = 1080
-TERRAIN_HEIGHT = 500
-TILE_SIZE = 1
-SEED = random.randint(900000, 99999999)
-SET_SEED = 9197368
-SEED_Y_OFFSET = 200
-REPEAT = random.randint(999999, 999999999)
-
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Worms ESGI")
-
-terrain = Terrain(SCREEN_WIDTH, SCREEN_HEIGHT, (0, 255, 0), 24)  # Exemple de terrain vert
 clock = pygame.time.Clock()
 
 # Nombre d'équipes
@@ -268,8 +256,5 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
-    pygame.display.flip()
-    clock.tick(60)
 
 pygame.quit()
