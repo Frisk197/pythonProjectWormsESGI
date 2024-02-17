@@ -1,8 +1,7 @@
 import os.path
 
 import pygame
-from character import Player
-import character
+from character import *
 import random
 import noise
 from TerrainTest import Terrain
@@ -105,6 +104,57 @@ def loadMainMenu(screen, teams, worms):
 
 
 
+def createTeams(teams, worms):
+    allTeams = []
+    for i in range(teams):
+        team = Team(i, worms)
+        for j in range(worms):
+            team.vikings[j].position.y = 500
+        allTeams.append(team)
+    return allTeams
+
+def placeWorms(teams):
+
+
+    # Définir la largeur minimale entre les joueurs
+    min_distance_between_players = 50  # Largeur minimale entre les joueurs
+
+    # Liste pour stocker les positions occupées
+    occupied_positions = []
+
+    # Positionnement aléatoire des joueurs pour chaque équipe
+
+    allVikings = []
+
+    for i in teams:
+        for j in i.vikings:
+            allVikings.append(j)
+
+    for viking in allVikings:
+
+        while True:
+            player_x = random.randint(0,
+                                        SCREEN_WIDTH - viking.rect.width)  # Utilisation de la largeur du rectangle de l'image du joueur
+            valid_position = True
+            for pos in occupied_positions:
+                if abs(player_x - pos) < min_distance_between_players:
+                    valid_position = False
+                    break
+            if valid_position:
+                player_x = min(player_x,
+                                SCREEN_WIDTH - viking.rect.width)  # Ajustement pour éviter de sortir de l'écran
+                occupied_positions.append(player_x)
+                viking.position.x = player_x
+                break
+
+
+        # Flip aléatoirement tous les joueurs de l'équipe
+        if random.choice([True, False]):
+            for viking in allVikings:
+                viking.flipped = True
+                # player.image = pygame.transform.flip(player.image, True, False)
+
+
 def loadGame(screen, teams, worms):
     runningGame = True
 
@@ -112,27 +162,40 @@ def loadGame(screen, teams, worms):
     polygoneMap = drawDestructibleWorldFullOptimized(screen, map)
 
     clock = pygame.time.Clock()
+
+    createdTeams = createTeams(teams, worms)
+    placeWorms(createdTeams)
+
+    vikings = []
+    for i in createdTeams:
+        for j in i.vikings:
+            vikings.append(j)
+
     while runningGame:
 
         screen.fill((0, 0, 0))
         pygame.draw.polygon(screen, (255, 0, 0), polygoneMap)
 
         clock.tick()
-        print(clock.get_fps())
+        # print(clock.get_fps())
         font = pygame.font.SysFont(None, 70)
         text = font.render(str(int(clock.get_fps())), True, (0, 255, 0))
         screen.blit(text, (0, 0))
 
-        #game here
-        pygame.draw.rect(screen, (255, 255, 0), player)
-        character.movements(pygame.key.get_pressed(), player)
+        # game here
+        # pygame.draw.rect(screen, (255, 255, 0), player)
+        # character.movements(pygame.key.get_pressed(), player)
+
+        for i in vikings:
+            # print('tkt')
+            i.draw(screen)
+
         #
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
         pygame.display.update()
-
 
 
 def genWorldDestructible():
@@ -142,7 +205,7 @@ def genWorldDestructible():
         heightMap.append(height)
     # print(heightMap)
     bitMap = []
-    for x in range(0, int(SCREEN_WIDTH/TILE_SIZE)):
+    for x in range(0, int(SCREEN_WIDTH / TILE_SIZE)):
         bitMapY = []
         for y in range(0, SCREEN_HEIGHT, TILE_SIZE):
             if y > SCREEN_HEIGHT - heightMap[x]:
@@ -154,20 +217,21 @@ def genWorldDestructible():
     # print(bitMap)
     return bitMap
 
+
 def drawDestructibleWorldFullOptimized(screen, bitMap):
     # print(len(bitMap))
     # print(SCREEN_WIDTH/TILE_SIZE)
     screen.fill((0, 0, 0))
     polygoneMap = []
     x = 0
-    y = int(SCREEN_HEIGHT/TILE_SIZE)-1
+    y = int(SCREEN_HEIGHT / TILE_SIZE) - 1
     polygoneMap.append((x, y))
-    for x in range(int(SCREEN_WIDTH/TILE_SIZE)):
+    for x in range(int(SCREEN_WIDTH / TILE_SIZE)):
         while bitMap[x][y]:
             y -= 1
         while not bitMap[x][y]:
             y += 1
-        polygoneMap.append((x*TILE_SIZE, y*TILE_SIZE))
+        polygoneMap.append((x * TILE_SIZE, y * TILE_SIZE))
     polygoneMap.append((SCREEN_WIDTH, SCREEN_HEIGHT))
     polygoneMap.append((0, SCREEN_HEIGHT))
     return polygoneMap
@@ -193,68 +257,17 @@ clock = pygame.time.Clock()
 # Nombre d'équipes
 teams = 3
 
-# Liste des chemins d'accès aux images des joueurs pour chaque équipe
-team_image_paths = [f"images/Viking{i}.png" for i in range(1, teams + 1)]  # Ajoutez des chemins pour chaque équipe supplémentaire
-
 worms = 3  # Nombre de joueurs par équipe
-
-# Liste pour stocker les joueurs de chaque équipe
-teams_players = []
-
-# Définir la largeur minimale entre les joueurs
-min_distance_between_players = 50  # Largeur minimale entre les joueurs
-
-# Liste pour stocker les positions occupées
-occupied_positions = []
-
-# Positionnement aléatoire des joueurs pour chaque équipe
-for team_image_path in team_image_paths:
-    team_players = []
-
-    for _ in range(worms):
-        player = Player(SCREEN_WIDTH, SCREEN_HEIGHT, team_image_path)
-        player_y = SCREEN_HEIGHT - terrain.cube_height
-        player.position.y = player_y
-
-        while True:
-            player_x = random.randint(0, SCREEN_WIDTH - player.rect.width)  # Utilisation de la largeur du rectangle de l'image du joueur
-            valid_position = True
-            for pos in occupied_positions:
-                if abs(player_x - pos) < min_distance_between_players:
-                    valid_position = False
-                    break
-            if valid_position:
-                player_x = min(player_x, SCREEN_WIDTH - player.rect.width)  # Ajustement pour éviter de sortir de l'écran
-                occupied_positions.append(player_x)
-                player.position.x = player_x
-                break
-
-        team_players.append(player)
-
-    # Flip aléatoirement tous les joueurs de l'équipe
-    if random.choice([True, False]):
-        for player in team_players:
-            player.image = pygame.transform.flip(player.image, True, False)
-
-    teams_players.append(team_players)
-
-# Liste pour stocker tous les joueurs
-all_players = sum(teams_players, [])
 
 running = True
 while running:
+
+    teamsAndWorms = loadMainMenu(screen, teams, worms)
+    loadGame(screen, teamsAndWorms[0], teamsAndWorms[1])
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
-    screen.fill((0, 0, 0))  # Efface l'écran
-    terrain.draw(screen)  # Dessine le terrain
-
-    # Dessine tous les joueurs sur le terrain
-    for team_players in teams_players:
-        # Dessiner les joueurs de l'équipe
-        for player in team_players:
-            player.draw(screen)
 
     pygame.display.flip()
     clock.tick(60)

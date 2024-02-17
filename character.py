@@ -4,8 +4,7 @@ import pygame
 
 
 class Position:
-    def __init__(self, name, x, y, speed_x=5, speed_y=5, gravity=9.8, wind=0):
-        self.name = f"position of {name}"
+    def __init__(self, x, y, speed_x=5, speed_y=5, gravity=9.8, wind=0):
         self.x = x
         self.y = y
         self.speed_x = speed_x
@@ -13,25 +12,27 @@ class Position:
         self.gravity = gravity
         self.wind = wind
 
+class Team:
+    def __init__(self, id, nbViking):
+        self.id = id
+        self.vikings = []
+        for i in range(nbViking):
+            self.vikings.append(Viking(i, image_path=f"images/Viking{id+1}.png"))
 
-class Player:
-    def __init__(self, name, health=100 , image_path="",flipped=False):
+class Viking:
+    def __init__(self, id, name="", health=100, image_path="", flipped=False):
+        self.id = id
         self.name = name
         self.health = health
         self.stockRocket = 5
         self.stockGrenade = 2
-        self.position = Position(name,0,0)
+        self.position = Position(0,0)
         self.flipped = flipped
-        if image_path:
-            self.image = pygame.image.load(image_path)
-            self.rect = self.image.get_rect()
-        else:
-            self.image = None
-            self.rect = None
+        self.image = pygame.image.load(image_path)
+        self.rect = self.image.get_rect()
 
     def draw(self, screen):
-        if self.image is not None:
-            screen.blit(self.image, (self.position.x, self.position.y - self.rect.height))
+        screen.blit(self.image, (self.position.x, self.position.y - self.rect.height))
 
     def shoot(self):
         if self.stockRocket > 0:
