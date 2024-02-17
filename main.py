@@ -97,28 +97,24 @@ def loadMainMenu(screen, teams, worms):
 
 def loadGame(screen, teams, worms):
     runningGame = True
-    if DESTRUCTIBLE:
-        map = genWorldDestructible()
-        drawDestructibleWorldFull(screen, map)
-    else:
-        map = genWorld()
+
+    map = genWorldDestructible()
+    polygoneMap = drawDestructibleWorldFullOptimized(screen, map)
 
     clock = pygame.time.Clock()
     while runningGame:
-        if DESTRUCTIBLE:
-            drawDestructibleWorld(screen, map)
-        else:
-            screen.fill((0,0,0))
-            drawWorld(screen, map)
+
+        screen.fill((0, 0, 0))
+        pygame.draw.polygon(screen, (255, 0, 0), polygoneMap)
 
         clock.tick()
-        # print(clock.get_fps())
+        print(clock.get_fps())
         font = pygame.font.SysFont(None, 70)
         text = font.render(str(int(clock.get_fps())), True, (0, 255, 0))
         screen.blit(text, (0, 0))
 
         #game here
-        pygame.draw.rect(screen, (255, 0, 0), player)
+        pygame.draw.rect(screen, (255, 255, 0), player)
         character.movements(pygame.key.get_pressed(), player)
         #
 
@@ -128,13 +124,6 @@ def loadGame(screen, teams, worms):
         pygame.display.update()
 
 
-def genWorld():
-    heightMap = []
-    for y in range(0, int(SCREEN_WIDTH/TILE_SIZE)):
-        height = int(noise.pnoise1(y * (SEED*0.00000000007), repeat=REPEAT) * TERRAIN_HEIGHT/2) + SEED_Y_OFFSET
-        heightMap.append(height)
-    print(heightMap)
-    return heightMap
 
 def genWorldDestructible():
     heightMap = []
@@ -155,37 +144,35 @@ def genWorldDestructible():
     # print(bitMap)
     return bitMap
 
-def drawWorld(screen, heightMap):
-    for x in range(0, len(heightMap)):
-        for y in range(0, heightMap[x], TILE_SIZE):
-            pygame.draw.rect(screen, (255, 0, 0), pygame.Rect((x * TILE_SIZE, SCREEN_HEIGHT - y, TILE_SIZE, TILE_SIZE)))
+def drawDestructibleWorldFullOptimized(screen, bitMap):
+    # print(len(bitMap))
+    # print(SCREEN_WIDTH/TILE_SIZE)
+    screen.fill((0, 0, 0))
+    polygoneMap = []
+    x = 0
+    y = int(SCREEN_HEIGHT/TILE_SIZE)-1
+    polygoneMap.append((x, y))
+    for x in range(int(SCREEN_WIDTH/TILE_SIZE)):
+        while bitMap[x][y]:
+            y -= 1
+        while not bitMap[x][y]:
+            y += 1
+        polygoneMap.append((x*TILE_SIZE, y*TILE_SIZE))
+    polygoneMap.append((SCREEN_WIDTH, SCREEN_HEIGHT))
+    polygoneMap.append((0, SCREEN_HEIGHT))
+    return polygoneMap
 
-
-def drawDestructibleWorldFull(screen, bitMap):
-    for x in range(0, int(SCREEN_WIDTH/TILE_SIZE)):
-        for y in range(0, int(SCREEN_HEIGHT/TILE_SIZE)):
-            if bitMap[x][y]:
-                pygame.draw.rect(screen, (255, 0, 0), pygame.Rect((x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE)))
-            else:
-                pygame.draw.rect(screen, (0, 0, 0), pygame.Rect((x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE)))
-
-def drawDestructibleWorld(screen, bitMap):
-    for x in range(0, int(SCREEN_WIDTH/TILE_SIZE)):
-        for y in range(0, int(SCREEN_HEIGHT/TILE_SIZE)):
-            if not bitMap[x][y]:
-                pygame.draw.rect(screen, (0, 0, 0), pygame.Rect((x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE)))
 
 pygame.init()
 
 SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 1080
 TERRAIN_HEIGHT = 500
-TILE_SIZE = 5
+TILE_SIZE = 1
 SEED = random.randint(900000, 99999999)
 SET_SEED = 9197368
 SEED_Y_OFFSET = 200
 REPEAT = random.randint(999999, 999999999)
-DESTRUCTIBLE = True
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Worms ESGI")
