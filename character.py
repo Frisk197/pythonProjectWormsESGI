@@ -1,6 +1,4 @@
-from random import random
-
-import pygame
+from setting import *
 
 
 class Position:
@@ -12,35 +10,39 @@ class Position:
         self.gravity = gravity
         self.wind = wind
 
+
 class Team:
-    def __init__(self, id, nbViking):
+    def __init__(self, id, nb_viking):
         self.id = id
         self.vikings = []
-        for i in range(nbViking):
-            self.vikings.append(Viking(i, image_path=f"images/Viking{id+1}.png"))
+        for i in range(nb_viking):
+            self.vikings.append(Viking(i, image_path=f"images/player/Viking{id + 1}.png"))
+
 
 class Viking:
     def __init__(self, id, name="", health=100, image_path="", flipped=False):
         self.id = id
         self.name = name
         self.health = health
-        self.stockRocket = 5
-        self.stockGrenade = 2
-        self.position = Position(0,0)
+        self.stock_rocket = 5
+        self.stock_grenade = 2
+        self.position = Position(0, 0)
         self.flipped = flipped
-        self.image = pygame.image.load(image_path)
+        self.raw_image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.raw_image, (int(self.raw_image.get_width() * SCALE_VIKING), int(self.raw_image.get_height() * SCALE_VIKING)))
+        self.image = pygame.transform.flip(self.image, True, False) if self.flipped else self.image
         self.rect = self.image.get_rect()
 
-    def draw(self, screen):
+    def draw(self):
         screen.blit(self.image, (self.position.x, self.position.y - self.rect.height))
 
     def shoot(self):
-        if self.stockRocket > 0:
-            self.stockRocket -= 1
+        if self.stock_rocket > 0:
+            self.stock_rocket -= 1
         else:
             print(f"{self.name} has no rocket")
 
-    def take_damage(self, damage):
+    def takeDamage(self, damage):
         self.health -= damage
         if self.health <= 0:
             print(f"{self.name} die")
@@ -48,32 +50,23 @@ class Viking:
             print(f"{self.name} has lost health")
 
     def reload(self):
-        self.stockRocket = 5
+        self.stock_rocket = 5
 
+    def getFlipped(self):
+        self.flipped = True
+        self.image = pygame.transform.flip(self.image, True, False)
 
-def movements(key, character):
-    up_movement = key[pygame.K_z] or key[pygame.K_UP]
-    down_movement = key[pygame.K_s] or key[pygame.K_DOWN]
-    left_movement = key[pygame.K_q] or key[pygame.K_LEFT]
-    right_movement = key[pygame.K_d] or key[pygame.K_RIGHT]
+    def move(self, key):
+        up_movement = key[pygame.K_z] or key[pygame.K_UP]
+        down_movement = key[pygame.K_s] or key[pygame.K_DOWN]
+        left_movement = key[pygame.K_q] or key[pygame.K_LEFT]
+        right_movement = key[pygame.K_d] or key[pygame.K_RIGHT]
 
-    if left_movement:
-        if up_movement != down_movement:
-            character.move_ip(-1, 0)
-        else:
-            character.move_ip(-2, 0)
-    if right_movement:
-        if up_movement != down_movement:
-            character.move_ip(1, 0)
-        else:
-            character.move_ip(2, 0)
-    if up_movement:
-        if left_movement != right_movement:
-            character.move_ip(0, -1)
-        else:
-            character.move_ip(0, -2)
-    if down_movement:
-        if left_movement != right_movement:
-            character.move_ip(0, 1)
-        else:
-            character.move_ip(0, 2)
+        if left_movement:
+            self.position.x -= self.position.speed_x
+        if right_movement:
+            self.position.x += self.position.speed_x
+        if up_movement:
+            self.position.y -= self.position.speed_y
+        if down_movement:
+            self.position.y += self.position.speed_y
