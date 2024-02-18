@@ -129,45 +129,43 @@ def placeVikings(teams):
 
 
 def loadGame(number_teams, number_vikings):
-    running_game = True
-
     map = genWorldDestructible()
     polygone_map = drawDestructibleWorldFullOptimized(map)
 
     created_teams = createTeams(number_teams, number_vikings)
     placeVikings(created_teams)
 
-    vikings = []
-    for team in created_teams:
-        for viking in team.vikings:
-            vikings.append(viking)
+    vikings = [viking for team in created_teams for viking in team.vikings]
 
+    last_time = pygame.time.get_ticks()
+
+    running_game = True
     while running_game:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running_game = False
 
         screen.fill(Colors.BLACK)
         pygame.draw.polygon(screen, Colors.RED, polygone_map)
 
-        clock.tick()
+        clock.tick(60)
         font = pygame.font.SysFont('', 70)
         fps_text = font.render(str(int(clock.get_fps())), True, Colors.GREEN)
         screen.blit(fps_text, (0, 0))
 
+        current_time = pygame.time.get_ticks()
+        delta_time = (current_time - last_time) / 1000.0
+        last_time = current_time
+
+
+
         key = pygame.key.get_pressed()
 
-        #
-        #   GAME
-        vikings[0].move(key)
-        #
-
         for viking in vikings:
+            viking.move(key, delta_time)
             viking.doMath(map)
             viking.draw()
 
-        for event in pygame.event.get():
-            if key[pygame.K_DELETE]:
-                pygame.quit()
-            if event.type == pygame.QUIT:
-                pygame.quit()
         pygame.display.update()
 
 

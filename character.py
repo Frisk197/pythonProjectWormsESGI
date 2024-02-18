@@ -2,7 +2,7 @@ from setting import *
 
 
 class Position:
-    def __init__(self, x, y, speed_x=5, speed_y=5, gravity=9.8, wind=0):
+    def __init__(self, x, y, speed_x=100, speed_y=100, gravity=9.8, wind=0):
         self.x = x
         self.y = y
         self.speed_x = speed_x
@@ -45,15 +45,15 @@ class Viking:
             self.position.x = 0 - int(self.rect.width/2)
         #
         # go above the ground
-        while map[self.position.x + int(self.rect.width/2)][self.position.y] == 1:
+        while map[int(self.position.x + int(self.rect.width/2))][int(self.position.y)] == 1:
             self.position.y -= TILE_SIZE
         #
         # falling calculations
-        if map[self.position.x + int(self.rect.width/2)][self.position.y+1] == 0:
+        if map[int(self.position.x + int(self.rect.width/2))][int(self.position.y+1)] == 0:
             if not self.falling:
                 self.setupFalling(self.position.y)
-            time = (pygame.time.get_ticks() - self.initialTime)/1000
-            self.position.y = int(-0.5*self.gravity*time*time + self.position.y * time + self.initialY)
+            time = (pygame.time.get_ticks() - self.initialTime) / 1000
+            self.position.y = int(-0.5 * self.gravity * time * time + self.position.y * time + self.initialY)
         #
         # cap y
         if self.position.y >= int(SCREEN_HEIGHT / TILE_SIZE):
@@ -62,9 +62,9 @@ class Viking:
             self.position.y = 1
         #
         # stop the fall
-        if map[self.position.x + int(self.rect.width / 2)][self.position.y + 1] == 1:
+        if map[int(self.position.x + int(self.rect.width / 2))][int(self.position.y + 1)] == 1:
             self.falling = False
-        #
+
 
     def setupFalling(self, initialY):
         self.falling = True
@@ -91,17 +91,17 @@ class Viking:
         self.flipped = True
         self.image = pygame.transform.flip(self.image, True, False)
 
-    def move(self, key):
-        up_movement = key[pygame.K_z] or key[pygame.K_UP]
-        down_movement = key[pygame.K_s] or key[pygame.K_DOWN]
-        left_movement = key[pygame.K_q] or key[pygame.K_LEFT]
-        right_movement = key[pygame.K_d] or key[pygame.K_RIGHT]
+    def move(self, key, delta_time):
+        # Vitesse de déplacement par seconde
+        speed_x = self.position.speed_x
+        speed_y = self.position.speed_y
 
-        if left_movement:
-            self.position.x -= self.position.speed_x
-        if right_movement:
-            self.position.x += self.position.speed_x
-        if up_movement:
-            self.position.y -= self.position.speed_y
-        if down_movement:
-            self.position.y += self.position.speed_y
+        # Calcule les déplacements en fonction du delta_time et des touches enfoncées
+        if key[pygame.K_q] or key[pygame.K_LEFT]:
+            self.position.x -= speed_x * delta_time
+        if key[pygame.K_d] or key[pygame.K_RIGHT]:
+            self.position.x += speed_x * delta_time
+        if key[pygame.K_z] or key[pygame.K_UP]:
+            self.position.y -= speed_y * delta_time
+        if key[pygame.K_s] or key[pygame.K_DOWN]:
+            self.position.y += speed_y * delta_time
