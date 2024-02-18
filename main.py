@@ -128,11 +128,55 @@ def placeVikings(teams):
             viking.getFlipped()
 
 
+def perforateBitMap(center, bitMap):
+    for i in range(EXPLOSION_RADIUS):
+        bresenham_circle(center[0] + PERFORATION_OFFSET, center[1], i, bitMap)
+        bresenham_circle(center[0] - PERFORATION_OFFSET, center[1], i, bitMap)
+        bresenham_circle(center[0], center[1] + PERFORATION_OFFSET, i, bitMap)
+        bresenham_circle(center[0], center[1] - PERFORATION_OFFSET, i, bitMap)
+        bresenham_circle(center[0] - PERFORATION_OFFSET, center[1] - PERFORATION_OFFSET, i, bitMap)
+        bresenham_circle(center[0] + PERFORATION_OFFSET, center[1] + PERFORATION_OFFSET, i, bitMap)
+        bresenham_circle(center[0] - PERFORATION_OFFSET, center[1] + PERFORATION_OFFSET, i, bitMap)
+        bresenham_circle(center[0] + PERFORATION_OFFSET, center[1] - PERFORATION_OFFSET, i, bitMap)
+        bresenham_circle(center[0], center[1], i, bitMap)
+
+def bresenham_circle(x0, y0, radius, bitMap):
+    x = radius
+    y = 0
+    err = 0
+
+    while x >= y:
+        if not x0 + x < 0 and not x0 + x >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 + y < 0 and not y0 + y >= int(SCREEN_HEIGHT/TILE_SIZE):
+            bitMap[int(x0 + x)][int(y0 + y)] = 0
+        if not x0 + y < 0 and not x0 + y >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 + x < 0 and not y0 + x >= int(SCREEN_HEIGHT/TILE_SIZE):
+            bitMap[int(x0 + y)][int(y0 + x)] = 0
+        if not x0 - y < 0 and not x0 - y >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 + x < 0 and not y0 + x >= int(SCREEN_HEIGHT/TILE_SIZE):
+            bitMap[int(x0 - y)][int(y0 + x)] = 0
+        if not x0 - x < 0 and not x0 - x >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 + y < 0 and not y0 + y >= int(SCREEN_HEIGHT/TILE_SIZE):
+            bitMap[int(x0 - x)][int(y0 + y)] = 0
+        if not x0 - x < 0 and not x0 - x >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 - y < 0 and not y0 - y >= int(SCREEN_HEIGHT/TILE_SIZE):
+            bitMap[int(x0 - x)][int(y0 - y)] = 0
+        if not x0 - y < 0 and not x0 - y >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 - x < 0 and not y0 - x >= int(SCREEN_HEIGHT/TILE_SIZE):
+            bitMap[int(x0 - y)][int(y0 - x)] = 0
+        if not x0 + y < 0 and not x0 + y >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 - x < 0 and not y0 - x >= int(SCREEN_HEIGHT/TILE_SIZE):
+            bitMap[int(x0 + y)][int(y0 - x)] = 0
+        if not x0 + x < 0 and not x0 + x >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 - x < 0 and not y0 - x >= int(SCREEN_HEIGHT/TILE_SIZE):
+            bitMap[int(x0 + x)][int(y0 - x)] = 0
+
+        y += 1
+        err += 1 + 2*y
+        if 2*(err-x) + 1 > 0:
+            x -= 1
+            err += 1 - 2*x
+
+
 def loadGame(number_teams, number_vikings):
     running_game = True
 
     map = genWorldDestructible()
     polygone_map = drawDestructibleWorldFullOptimized(map)
+
+    holesCoordinates = []
 
     created_teams = createTeams(number_teams, number_vikings)
     placeVikings(created_teams)
@@ -142,15 +186,40 @@ def loadGame(number_teams, number_vikings):
         for viking in team.vikings:
             vikings.append(viking)
 
+    if DEBUG_ENABLED:
+        mouse0Pressed = False
+
     while running_game:
 
+        # draw full map
         screen.fill(Colors.BLACK)
         pygame.draw.polygon(screen, Colors.RED, polygone_map)
+        #
 
+        # draw holes
+        for hole in holesCoordinates:
+            pygame.draw.circle(screen, Colors.BLACK, hole, EXPLOSION_RADIUS + PERFORATION_OFFSET)
+        #
+
+
+        # debug mode to create holes with mouse left click
+        if DEBUG_ENABLED:
+            mousePressed = pygame.mouse.get_pressed(num_buttons=3)
+            if mousePressed[0] and not mouse0Pressed:
+                mouse0Pressed = True
+                mouseCoordinates = pygame.mouse.get_pos()
+                holesCoordinates.append(mouseCoordinates)
+                perforateBitMap(mouseCoordinates, map)
+            if not mousePressed[0] and mouse0Pressed:
+                mouse0Pressed = False
+        #
+
+        # clock update and fps counter
         clock.tick()
         font = pygame.font.SysFont('', 70)
         fps_text = font.render(str(int(clock.get_fps())), True, Colors.GREEN)
         screen.blit(fps_text, (0, 0))
+        #
 
         key = pygame.key.get_pressed()
 
@@ -158,6 +227,8 @@ def loadGame(number_teams, number_vikings):
         #   GAME
         vikings[0].move(key)
         #
+
+
 
         for viking in vikings:
             viking.doMath(map)
