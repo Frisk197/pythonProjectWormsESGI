@@ -1,5 +1,7 @@
 import pygame
 import random
+import numpy as np
+import math
 
 # ESGI - PARIS
 # 3RVJV - 2023/2024

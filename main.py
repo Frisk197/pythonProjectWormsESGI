@@ -1,6 +1,8 @@
+import pygame
+
 from setting import *
 from terrain_generation import genWorldDestructible, drawDestructibleWorldFullOptimized
-from character import Team
+from character import Team, Grenade
 
 
 def loadMainMenu(teams, vikings):
@@ -125,7 +127,7 @@ def placeVikings(teams):
                 break
 
         if random.choice([True, False]):
-            viking.getFlipped()
+            viking.getFlipped(True)
 
 
 def loadGame(number_teams, number_vikings):
@@ -138,6 +140,7 @@ def loadGame(number_teams, number_vikings):
     placeVikings(created_teams)
 
     vikings = []
+    grenades = []
     for team in created_teams:
         for viking in team.vikings:
             vikings.append(viking)
@@ -154,9 +157,24 @@ def loadGame(number_teams, number_vikings):
 
         key = pygame.key.get_pressed()
 
-        #
         #   GAME
         vikings[0].move(key)
+
+        if key[pygame.K_a] and not vikings[0].send_grenade:
+            print('POSITION VIKING :' + str(vikings[0].position.x) + ', ' + str(vikings[0].position.y))
+
+            grenade = Grenade(10, x=vikings[0].position.x, y=vikings[0].position.y - 50,
+                                    direction=vikings[0].position.direction)
+            grenades.append(grenade)
+            print('GRENADE :' + str(grenades[0].position.x) + ', ' + str(grenades[0].position.y))
+            vikings[0].send_grenade = True
+
+            #
+        for grenade in grenades:
+            # grenade.start_preview_trajectory()
+            # grenade.calculate_trajectory()
+            grenade.update(map)
+            grenade.draw()
         #
 
         for viking in vikings:
