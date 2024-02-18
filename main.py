@@ -148,7 +148,7 @@ def loadGame(number_teams, number_vikings):
         screen.fill(Colors.BLACK)
         pygame.draw.polygon(screen, Colors.RED, polygone_map)
 
-        clock.tick(60)
+        clock.tick()
         font = pygame.font.SysFont('', 70)
         fps_text = font.render(str(int(clock.get_fps())), True, Colors.GREEN)
         screen.blit(fps_text, (0, 0))

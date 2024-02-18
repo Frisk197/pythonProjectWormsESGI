@@ -29,6 +29,10 @@ class Viking:
         self.stock_grenade = 2
         self.position = Position(0, 0)
         self.flipped = flipped
+        self.jumping = False
+        self.jump_height = 100  # Hauteur maximale du saut (à ajuster selon vos besoins)
+        self.jump_velocity = 0  # Vélocité initiale du saut
+        self.initialY = 0  # Initialisez la position initiale du saut
         self.raw_image = pygame.image.load(image_path)
         self.image = pygame.transform.scale(self.raw_image, (int(self.raw_image.get_width() * SCALE_VIKING), int(self.raw_image.get_height() * SCALE_VIKING)))
         self.image = pygame.transform.flip(self.image, True, False) if self.flipped else self.image
@@ -97,11 +101,24 @@ class Viking:
         speed_y = self.position.speed_y
 
         # Calcule les déplacements en fonction du delta_time et des touches enfoncées
-        if key[pygame.K_q] or key[pygame.K_LEFT]:
+        if key[pygame.K_q]:
             self.position.x -= speed_x * delta_time
-        if key[pygame.K_d] or key[pygame.K_RIGHT]:
+        if key[pygame.K_d]:
             self.position.x += speed_x * delta_time
-        if key[pygame.K_z] or key[pygame.K_UP]:
-            self.position.y -= speed_y * delta_time
-        if key[pygame.K_s] or key[pygame.K_DOWN]:
-            self.position.y += speed_y * delta_time
+
+
+        if key[pygame.K_SPACE] and not self.jumping:
+            self.jumping = True
+            self.jump_velocity = -10  # Vitesse initiale du saut
+
+        if self.jumping:
+            self.position.y += self.jump_velocity * delta_time
+            self.jump_velocity += GRAVITY * delta_time
+
+            if self.position.y >= self.initialY:
+                self.position.y = self.initialY
+                self.jumping = False
+                self.jump_velocity = 0
+
+
+
