@@ -12,6 +12,8 @@ clock = pygame.time.Clock()
 SCREEN_WIDTH = 1500
 SCREEN_HEIGHT = 1000
 
+FPS = 100
+
 TERRAIN_HEIGHT = 500
 TILE_SIZE = 1
 SEED = random.randint(900000, 99999999)

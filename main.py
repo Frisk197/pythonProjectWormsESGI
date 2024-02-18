@@ -1,6 +1,6 @@
 from setting import *
 from terrain_generation import genWorldDestructible, drawDestructibleWorldFullOptimized
-from character import Team
+from character import Team, Grenade
 
 
 def loadMainMenu(teams, vikings):
@@ -92,8 +92,6 @@ def createTeams(teams, vikings):
     all_teams = []
     for i in range(teams):
         team = Team(i, vikings)
-        for j in range(vikings):
-            team.vikings[j].position.y = 500
         all_teams.append(team)
     return all_teams
 
@@ -113,6 +111,7 @@ def placeVikings(teams):
 
         while True:
             player_x = random.randint(0, SCREEN_WIDTH - viking.rect.width)
+            player_y = 500
             valid_position = True
             for pos in occupied_positions:
                 if abs(player_x - pos) < min_distance_between_players:
@@ -122,10 +121,11 @@ def placeVikings(teams):
                 player_x = min(player_x, SCREEN_WIDTH - viking.rect.width)
                 occupied_positions.append(player_x)
                 viking.position.x = player_x
+                viking.position.y = player_y
                 break
 
         if random.choice([True, False]):
-            viking.getFlipped()
+            viking.getFlipped(True)
 
 
 def loadGame(number_teams, number_vikings):
@@ -138,6 +138,7 @@ def loadGame(number_teams, number_vikings):
     placeVikings(created_teams)
 
     vikings = []
+    grenades = []
     for team in created_teams:
         for viking in team.vikings:
             vikings.append(viking)
@@ -147,7 +148,7 @@ def loadGame(number_teams, number_vikings):
         screen.fill(Colors.BLACK)
         pygame.draw.polygon(screen, Colors.RED, polygone_map)
 
-        clock.tick()
+        clock.tick(FPS)
         font = pygame.font.SysFont('', 70)
         fps_text = font.render(str(int(clock.get_fps())), True, Colors.GREEN)
         screen.blit(fps_text, (0, 0))
@@ -156,13 +157,34 @@ def loadGame(number_teams, number_vikings):
 
         #
         #   GAME
-        #   vikings[0].move(key)
+        vikings[0].move(key)
+
+        if key[pygame.K_a] and not vikings[0].send_grenade:
+            print('POSITION VIKING :' + str(vikings[0].position.x) + ', ' + str(vikings[0].position.y))
+
+            grenades.append(Grenade('Grenade', 10, x=vikings[0].position.x, y=vikings[0].position.y - 50, direction=vikings[0].position.direction))
+            print('GRENADE :' + str(grenades[0].position.x) + ', ' + str(grenades[0].position.y))
+            vikings[0].send_grenade = True
+
         #
+        for grenade in grenades:
+            grenade.start_preview_trajectory()
+            grenade.calculate_trajectory()
+            grenade.update()
+            grenade.draw()
+
 
         for viking in vikings:
+            #viking.move(key)
             viking.draw()
 
         for event in pygame.event.get():
+
+            if key[pygame.K_a]:
+                vikings[0].send_grenade = True
+            if key[pygame.K_a]:
+                vikings[0].send_grenade = False
+
             if key[pygame.K_DELETE]:
                 pygame.quit()
             if event.type == pygame.QUIT:
@@ -172,6 +194,8 @@ def loadGame(number_teams, number_vikings):
 
 running = True
 while running:
+
+    clock.tick(FPS)
 
     number_teams_and_vikings = loadMainMenu(DEFAULT_NUMBER_TEAMS, DEFAULT_NUMBER_VIKINGS)
     loadGame(number_teams_and_vikings[0], number_teams_and_vikings[1])
