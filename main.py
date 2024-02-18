@@ -156,10 +156,11 @@ def loadGame(number_teams, number_vikings):
 
         #
         #   GAME
-        #   vikings[0].move(key)
+        vikings[0].move(key)
         #
 
         for viking in vikings:
+            viking.doMath(map)
             viking.draw()
 
         for event in pygame.event.get():

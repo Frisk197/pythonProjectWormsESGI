@@ -25,6 +25,7 @@ MAX_VIKINGS_PER_TEAM = 4
 MAX_TEAMS = 8
 DEFAULT_NUMBER_TEAMS = 3
 DEFAULT_NUMBER_VIKINGS = 3
+GRAVITY = -9.8
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Verking Project - ESGI")

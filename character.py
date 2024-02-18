@@ -21,6 +21,7 @@ class Team:
 
 class Viking:
     def __init__(self, id, name="", health=100, image_path="", flipped=False):
+        self.falling = False
         self.id = id
         self.name = name
         self.health = health
@@ -36,6 +37,40 @@ class Viking:
     def draw(self):
         screen.blit(self.image, (self.position.x, self.position.y - self.rect.height))
 
+    def doMath(self, map): # not meth
+        # cap x
+        if (self.position.x + int(self.rect.width/2)) >= int(SCREEN_WIDTH/TILE_SIZE):
+            self.position.x = int(SCREEN_WIDTH/TILE_SIZE) - int(self.rect.width/2)-1
+        if self.position.x + int(self.rect.width/2) < 0:
+            self.position.x = 0 - int(self.rect.width/2)
+        #
+        # go above the ground
+        while map[self.position.x + int(self.rect.width/2)][self.position.y] == 1:
+            self.position.y -= TILE_SIZE
+        #
+        # falling calculations
+        if map[self.position.x + int(self.rect.width/2)][self.position.y+1] == 0:
+            if not self.falling:
+                self.setupFalling(self.position.y)
+            time = (pygame.time.get_ticks() - self.initialTime)/1000
+            self.position.y = int(-0.5*self.gravity*time*time + self.position.y * time + self.initialY)
+        #
+        # cap y
+        if self.position.y >= int(SCREEN_HEIGHT / TILE_SIZE):
+            self.position.y = int(SCREEN_HEIGHT / TILE_SIZE) - 10
+        if self.position.y <= 0:
+            self.position.y = 1
+        #
+        # stop the fall
+        if map[self.position.x + int(self.rect.width / 2)][self.position.y + 1] == 1:
+            self.falling = False
+        #
+
+    def setupFalling(self, initialY):
+        self.falling = True
+        self.gravity = GRAVITY
+        self.initialY = initialY
+        self.initialTime = pygame.time.get_ticks()
     def shoot(self):
         if self.stock_rocket > 0:
             self.stock_rocket -= 1
@@ -45,9 +80,9 @@ class Viking:
     def takeDamage(self, damage):
         self.health -= damage
         if self.health <= 0:
-            print(f"{self.name} die")
+            print(f"{self.name} died")
         else:
-            print(f"{self.name} has lost health")
+            print(f"{self.name} has lost {damage} health")
 
     def reload(self):
         self.stock_rocket = 5
