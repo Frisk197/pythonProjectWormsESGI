@@ -42,5 +42,5 @@ def drawDestructibleWorldFullOptimized(bitMap):
     polygoneMap.append((int(SCREEN_WIDTH/TILE_SIZE), lastY * TILE_SIZE))
     polygoneMap.append((SCREEN_WIDTH, SCREEN_HEIGHT))
     polygoneMap.append((0, SCREEN_HEIGHT))
-    print(len(polygoneMap))
+    # print(len(polygoneMap))
     return polygoneMap

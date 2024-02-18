@@ -1,3 +1,5 @@
+import pygame
+
 from setting import *
 from terrain_generation import genWorldDestructible, drawDestructibleWorldFullOptimized
 from character import Team
@@ -128,6 +130,44 @@ def placeVikings(teams):
             viking.getFlipped()
 
 
+def winCheck(number_teams, number_vikings, teams):
+    lastTeamAlive = None
+    for vikings in teams:
+        for viking in vikings.vikings:
+            if viking.health > 0:
+                return None
+            else:
+                lastTeamAlive = vikings
+    return lastTeamAlive
+
+
+def winScreen(team):
+    runningWinScreen = True
+
+    while runningWinScreen:
+        screen.fill(Colors.BLACK)
+        font = pygame.font.SysFont('', 70)
+        text = font.render("GG Team " + str(team.id+1), True, Colors.GREEN)
+        text2 = font.render("Play again ? [SPACE]", True, Colors.GREEN)
+        text3 = font.render("Stop ? [DEL]", True, Colors.GREEN)
+        screen.blit(text, (int(SCREEN_WIDTH/2) - int(text.get_width()/2), int(SCREEN_HEIGHT/2) - text.get_height()*2))
+        screen.blit(text2, (int(SCREEN_WIDTH/2) - int(text2.get_width()/2), int(SCREEN_HEIGHT/2)))
+        screen.blit(text3, (int(SCREEN_WIDTH/2) - int(text3.get_width()/2), int(SCREEN_HEIGHT/2) + text3.get_height()*2))
+
+        key = pygame.key.get_pressed()
+
+        if key[pygame.K_SPACE]:
+            runningWinScreen = False
+
+        for event in pygame.event.get():
+            if key[pygame.K_DELETE]:
+                pygame.quit()
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        pygame.display.update()
+
+
+
 def loadGame(number_teams, number_vikings):
     running_game = True
 
@@ -142,6 +182,18 @@ def loadGame(number_teams, number_vikings):
         for viking in team.vikings:
             vikings.append(viking)
 
+    teamPlaying = 0
+
+    movingStartTime = 0
+    timerStarted = False
+
+    selectedWorm = 0
+
+    rightPressed = False
+    leftPressed = False
+
+    ePressed = False
+
     while running_game:
 
         screen.fill(Colors.BLACK)
@@ -154,14 +206,82 @@ def loadGame(number_teams, number_vikings):
 
         key = pygame.key.get_pressed()
 
-        #
-        #   GAME
-        vikings[0].move(key)
+
+        ###   GAME
+
+        # check for a winner
+        win = winCheck(number_teams, number_vikings, created_teams)
+        if win is not None:
+            running_game = False
+            winScreen(win)
         #
 
+        # end round and select next team
+        if key[pygame.K_e] and not ePressed:
+            ePressed = True
+            timerStarted = False
+            teamPlaying += 1
+            if teamPlaying > number_teams - 1:
+                teamPlaying = 0
+            nbVikingsOK = 0
+            while nbVikingsOK == 0:
+                for eVikings in created_teams[teamPlaying].vikings:
+                    if eVikings.health > 0:
+                        nbVikingsOK += 1
+                if nbVikingsOK == 0:
+                    teamPlaying += 1
+                    if teamPlaying > number_teams - 1:
+                        teamPlaying = 0
+        if not key[pygame.K_e]:
+            ePressed = False
+        #
+
+        # handle timer
+        if (key[pygame.K_q] or key[pygame.K_d] or key[pygame.K_z] or key[pygame.K_SPACE]) and not timerStarted:
+            timerStarted = True
+            movingStartTime = pygame.time.get_ticks()
+
+        remainingTime = MOVING_TIME
+        if timerStarted:
+            remainingTime = MOVING_TIME - ((pygame.time.get_ticks() - movingStartTime)/1000)
+        if remainingTime <= 0:
+            remainingTime = 0
+        timerText = font.render(str(int(remainingTime)), True, Colors.BLUE)
+        screen.blit(timerText, (SCREEN_WIDTH - timerText.get_width(), 0))
+        #
+
+        #
+        if not timerStarted and (not rightPressed or not leftPressed) and (key[pygame.K_RIGHT] or key[pygame.K_LEFT]):
+            if not rightPressed and key[pygame.K_RIGHT]:
+                rightPressed = True
+                selectedWorm += 1
+                if selectedWorm > number_vikings-1:
+                    selectedWorm = 0
+            if not leftPressed and key[pygame.K_LEFT]:
+                leftPressed = True
+                selectedWorm -= 1
+                if selectedWorm < 0:
+                    selectedWorm = number_vikings-1
+        if not key[pygame.K_RIGHT]:
+            rightPressed = False
+        if not key[pygame.K_LEFT]:
+            leftPressed = False
+        #
+
+
+
+
+        ###
+
+
         for viking in vikings:
+            created_teams[teamPlaying].vikings[selectedWorm].move(key, remainingTime)
             viking.doMath(map)
             viking.draw()
+
+        screen.blit(DOWN_ARROW, ((created_teams[teamPlaying].vikings[selectedWorm].position.x + int(created_teams[teamPlaying].vikings[selectedWorm].image.get_width()/2)) - int(DOWN_ARROW.get_width()/2), created_teams[teamPlaying].vikings[selectedWorm].position.y - created_teams[teamPlaying].vikings[selectedWorm].image.get_height()*2))
+
+
 
         for event in pygame.event.get():
             if key[pygame.K_DELETE]:
@@ -173,6 +293,7 @@ def loadGame(number_teams, number_vikings):
 
 running = True
 while running:
+
 
     number_teams_and_vikings = loadMainMenu(DEFAULT_NUMBER_TEAMS, DEFAULT_NUMBER_VIKINGS)
     loadGame(number_teams_and_vikings[0], number_teams_and_vikings[1])

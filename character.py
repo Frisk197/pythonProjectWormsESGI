@@ -91,17 +91,18 @@ class Viking:
         self.flipped = True
         self.image = pygame.transform.flip(self.image, True, False)
 
-    def move(self, key):
-        up_movement = key[pygame.K_z] or key[pygame.K_UP]
-        down_movement = key[pygame.K_s] or key[pygame.K_DOWN]
-        left_movement = key[pygame.K_q] or key[pygame.K_LEFT]
-        right_movement = key[pygame.K_d] or key[pygame.K_RIGHT]
+    def move(self, key, timer):
+        up_movement = key[pygame.K_z]
+        down_movement = key[pygame.K_s]
+        left_movement = key[pygame.K_q]
+        right_movement = key[pygame.K_d]
 
-        if left_movement:
-            self.position.x -= self.position.speed_x
-        if right_movement:
-            self.position.x += self.position.speed_x
-        if up_movement:
-            self.position.y -= self.position.speed_y
-        if down_movement:
-            self.position.y += self.position.speed_y
+        if timer > 0:
+            if left_movement:
+                self.position.x -= self.position.speed_x
+            if right_movement:
+                self.position.x += self.position.speed_x
+            if up_movement:
+                self.position.y -= self.position.speed_y
+            if down_movement:
+                self.position.y += self.position.speed_y
