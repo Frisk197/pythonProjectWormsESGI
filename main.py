@@ -161,8 +161,14 @@ def loadGame(number_teams, number_vikings):
 
         key = pygame.key.get_pressed()
 
+        vikings[0].move(key, delta_time, map)
+
+        if key[pygame.K_DELETE]:
+            vikings[0].thereWasGround = False
+            vikings[0].jumping = False
+
         for viking in vikings:
-            viking.move(key, delta_time)
+            # viking.move(key, delta_time, map)
             viking.doMath(map)
             viking.draw()
 
