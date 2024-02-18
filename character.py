@@ -2,7 +2,7 @@ from setting import *
 
 
 class Position:
-    def __init__(self, x, y, speed_x=5, speed_y=5, gravity=9.8, wind=0):
+    def __init__(self, x, y, speed_x=1, speed_y=1, gravity=9.8, wind=0):
         self.x = x
         self.y = y
         self.speed_x = speed_x
@@ -44,6 +44,12 @@ class Viking:
         if self.position.x + int(self.rect.width/2) < 0:
             self.position.x = 0 - int(self.rect.width/2)
         #
+        # cap y
+        if self.position.y >= int(SCREEN_HEIGHT / TILE_SIZE)-1:
+            self.position.y = int(SCREEN_HEIGHT / TILE_SIZE)-2
+        if self.position.y <= 0:
+            self.position.y = 1
+        #
         # go above the ground
         while map[self.position.x + int(self.rect.width/2)][self.position.y] == 1:
             self.position.y -= TILE_SIZE
@@ -55,9 +61,15 @@ class Viking:
             time = (pygame.time.get_ticks() - self.initialTime)/1000
             self.position.y = int(-0.5*self.gravity*time*time + self.position.y * time + self.initialY)
         #
+        # cap x
+        if (self.position.x + int(self.rect.width / 2)) >= int(SCREEN_WIDTH / TILE_SIZE):
+            self.position.x = int(SCREEN_WIDTH / TILE_SIZE) - int(self.rect.width / 2) - 1
+        if self.position.x + int(self.rect.width / 2) < 0:
+            self.position.x = 0 - int(self.rect.width / 2)
+        #
         # cap y
-        if self.position.y >= int(SCREEN_HEIGHT / TILE_SIZE):
-            self.position.y = int(SCREEN_HEIGHT / TILE_SIZE) - 10
+        if self.position.y >= int(SCREEN_HEIGHT / TILE_SIZE)-1:
+            self.position.y = int(SCREEN_HEIGHT / TILE_SIZE)-2
         if self.position.y <= 0:
             self.position.y = 1
         #
