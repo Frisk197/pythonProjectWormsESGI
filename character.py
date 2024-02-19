@@ -114,19 +114,25 @@ class Viking:
     def draw(self):
         screen.blit(self.image, (self.position.x, self.position.y - self.rect.height))
 
-    def doMath(self, map): # not meth
+    def capXandY(self):
         # cap x
-        if (self.position.x + int(self.rect.width/2)) >= int(SCREEN_WIDTH/TILE_SIZE):
-            self.position.x = int(SCREEN_WIDTH/TILE_SIZE) - int(self.rect.width/2)-1
-        if self.position.x + int(self.rect.width/2) < 0:
-            self.position.x = 0 - int(self.rect.width/2)
+        if (self.position.x + int(self.rect.width / 2)) >= int(SCREEN_WIDTH / TILE_SIZE):
+            self.position.x = int(SCREEN_WIDTH / TILE_SIZE) - int(self.rect.width / 2) - 1
+            self.health = 0
+        if self.position.x + int(self.rect.width / 2) < 0:
+            self.position.x = 0 - int(self.rect.width / 2)
+            self.health = 0
         #
         # cap y
-        if self.position.y >= int(SCREEN_HEIGHT / TILE_SIZE)-1:
-            self.position.y = int(SCREEN_HEIGHT / TILE_SIZE)-2
+        if self.position.y >= int(SCREEN_HEIGHT / TILE_SIZE) - 1:
+            self.position.y = int(SCREEN_HEIGHT / TILE_SIZE) - 2
+            self.health = 0
         if self.position.y <= 0:
             self.position.y = 1
+            self.health = 0
         #
+    def doMath(self, map): # not meth
+        self.capXandY()
         # falling calculations
         if map[int(self.position.x + int(self.rect.width/2))][int(self.position.y+1)] == 0 and not self.jumping:
             if not self.falling:
@@ -135,22 +141,12 @@ class Viking:
             time = (pygame.time.get_ticks() - self.initialTime) / 1000
             self.position.y = int((-0.5 * self.gravity) * (time * time) + (self.position.y * time) + self.initialY)
         #
+        self.capXandY()
         # go above the ground
         while map[int(self.position.x + int(self.rect.width / 2))][int(self.position.y)] == 1:
             self.position.y -= TILE_SIZE
         #
-        # cap x
-        if (self.position.x + int(self.rect.width / 2)) >= int(SCREEN_WIDTH / TILE_SIZE):
-            self.position.x = int(SCREEN_WIDTH / TILE_SIZE) - int(self.rect.width / 2) - 1
-        if self.position.x + int(self.rect.width / 2) < 0:
-            self.position.x = 0 - int(self.rect.width / 2)
-        #
-        # cap y
-        if self.position.y >= int(SCREEN_HEIGHT / TILE_SIZE)-1:
-            self.position.y = int(SCREEN_HEIGHT / TILE_SIZE)-2
-        if self.position.y <= 0:
-            self.position.y = 1
-        #
+        self.capXandY()
         # stop the fall
         if map[int(self.position.x + int(self.rect.width / 2))][int(self.position.y + 1)] == 1 and self.falling and not self.jumping:
             self.falling = False

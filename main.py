@@ -281,15 +281,17 @@ def loadGame(number_teams, number_vikings):
         #
 
 
+
+
         # debug mode to create holes with mouse left click
         if DEBUG_ENABLED:
             mousePressed = pygame.mouse.get_pressed(num_buttons=3)
-            if mousePressed[0] and not mouse0Pressed:
+            if mousePressed[2] and not mouse0Pressed:
                 mouse0Pressed = True
                 mouseCoordinates = pygame.mouse.get_pos()
                 holesCoordinates.append(mouseCoordinates)
                 perforateBitMap(mouseCoordinates, map)
-            if not mousePressed[0] and mouse0Pressed:
+            if not mousePressed[2] and mouse0Pressed:
                 mouse0Pressed = False
         #
 
@@ -313,8 +315,7 @@ def loadGame(number_teams, number_vikings):
                 for vikings2 in created_teams:
                     for viking2 in vikings2.vikings:
                         if abs(viking2.position.x - rocket.x) < (EXPLOSION_RADIUS + PERFORATION_OFFSET) and abs(viking2.position.y - rocket.y) < EXPLOSION_RADIUS:
-                            # viking2.health = viking2.health - int(abs(viking2.position.y - rocket.y) + abs(viking2.position.x - rocket.x)/2)
-                            viking2.health = -10
+                            viking2.health -= (100 - int((abs(viking2.position.x - rocket.x) + abs(viking2.position.y - rocket.y))/2))
                 rocketLaunched = False
                 rocket = None
                 endRound = True
@@ -418,10 +419,20 @@ def loadGame(number_teams, number_vikings):
             leftPressed = False
         #
 
-
-
+        oldSelectedWorm = selectedWorm
+        while created_teams[teamPlaying].vikings[selectedWorm].health <= 0:
+            selectedWorm += 1
+            if selectedWorm > number_vikings - 1:
+                selectedWorm = 0
+            if selectedWorm == oldSelectedWorm:
+                teamPlaying += 1
+                if teamPlaying > number_teams - 1:
+                    teamPlaying = 0
 
         ###
+
+        hp = font.render(str(created_teams[teamPlaying].vikings[selectedWorm].health), True, Colors.GREEN)
+        screen.blit(hp, (SCREEN_WIDTH - hp.get_width(), hp.get_height() - hp.get_height()))
 
 
         for viking in vikings:
