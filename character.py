@@ -4,7 +4,7 @@ from setting import *
 
 
 class Position:
-    def __init__(self, x, y, speed_x=100, speed_y=100, gravity=9.8, wind=0):
+    def __init__(self, x, y, speed_x=10, speed_y=10, gravity=9.8, wind=0):
         self.x = x
         self.y = y
         self.speed_x = speed_x
@@ -34,7 +34,7 @@ class Rocket:
         self.image = pygame.transform.scale(self.original_image, (int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
         self.rect = self.image.get_rect()
 
-    def update(self, delta_time):
+    def update(self, delta_time, bitMap):
         if not self.exploded:
             if not self.exploded:
                 time = pygame.time.get_ticks() / 1000  # Convertir le temps en secondes
@@ -52,10 +52,12 @@ class Rocket:
                 self.y += (force_y + drag_force_y + self.gravity) * delta_time + self.wind * delta_time
 
             # Vérifier si la roquette a atteint le sol, les bords de l'écran ou s'il y a une collision avec un obstacle
-            if self.y <= 0 or self.y >= SCREEN_HEIGHT or self.x <= 0 or self.x >= SCREEN_WIDTH or self.check_collision():
+            if self.y <= 0 or self.y >= SCREEN_HEIGHT or self.x <= 0 or self.x >= SCREEN_WIDTH or self.check_collision(bitMap):
                 self.explode()
-    def check_collision(self):
+    def check_collision(self, bitMap):
         # Insérer le code pour vérifier s'il y a collision avec un obstacle
+        if bitMap[int(self.x)][int(self.y)] == 1:
+            return True
         return False
 
     def explode(self):
@@ -125,10 +127,6 @@ class Viking:
         if self.position.y <= 0:
             self.position.y = 1
         #
-        # go above the ground
-        while map[int(self.position.x + int(self.rect.width/2))][int(self.position.y)] == 1:
-            self.position.y -= TILE_SIZE
-        #
         # falling calculations
         if map[int(self.position.x + int(self.rect.width/2))][int(self.position.y+1)] == 0 and not self.jumping:
             if not self.falling:
@@ -136,6 +134,10 @@ class Viking:
                 self.setupFalling(self.position.y)
             time = (pygame.time.get_ticks() - self.initialTime) / 1000
             self.position.y = int((-0.5 * self.gravity) * (time * time) + (self.position.y * time) + self.initialY)
+        #
+        # go above the ground
+        while map[int(self.position.x + int(self.rect.width / 2))][int(self.position.y)] == 1:
+            self.position.y -= TILE_SIZE
         #
         # cap x
         if (self.position.x + int(self.rect.width / 2)) >= int(SCREEN_WIDTH / TILE_SIZE):
@@ -180,7 +182,7 @@ class Viking:
         self.flipped = True
         self.image = pygame.transform.flip(self.image, True, False)
 
-    def move(self, key, timer):
+    def move(self, key, delta_time, timer, bitMap):
         up_movement = key[pygame.K_z]
         down_movement = key[pygame.K_s]
         left_movement = key[pygame.K_q]
@@ -191,12 +193,13 @@ class Viking:
         speed_y = self.position.speed_y
 
         # Calcule les déplacements en fonction du delta_time et des touches enfoncées
-        if key[pygame.K_q]:
-            self.position.x -= speed_x * delta_time
-            # print('gauche')
-        if key[pygame.K_d]:
-            self.position.x += speed_x * delta_time
-            # print('droite')
+        if not timer <= 0:
+            if key[pygame.K_q]:
+                self.position.x -= speed_x * delta_time
+                # print('gauche')
+            if key[pygame.K_d]:
+                self.position.x += speed_x * delta_time
+                # print('droite')
 
         if key[pygame.K_SPACE] and not self.jumping and not self.falling:
             print(self.falling)
@@ -206,12 +209,12 @@ class Viking:
         if self.jumping:
             time = (pygame.time.get_ticks() - self.initialTime)/100
             self.position.y = int((-0.5 * self.gravity) * (time * time) + (self.jump_velocity * time) + self.initialY)
-            if not int(self.position.x + self.image.get_width()/2) >= int(SCREEN_WIDTH/TILE_SIZE)-1 and not int(self.position.x + self.image.get_width()/2) < 0 and not int(self.position.y+2) >= int(SCREEN_HEIGHT/TILE_SIZE)-1 and not map[int(self.position.x + self.image.get_width()/2)][int(self.position.y+2)] == 1:
+            if not int(self.position.x + self.image.get_width()/2) >= int(SCREEN_WIDTH/TILE_SIZE)-1 and not int(self.position.x + self.image.get_width()/2) < 0 and not int(self.position.y+2) >= int(SCREEN_HEIGHT/TILE_SIZE)-1 and not bitMap[int(self.position.x + self.image.get_width()/2)][int(self.position.y+2)] == 1:
                 self.thereWasGround = False
 
 
             if not self.position.y > int(SCREEN_HEIGHT/TILE_SIZE) and not self.position.y < 0 and not self.thereWasGround:
-                if map[int(self.position.x + self.image.get_width()/2)][int(self.position.y+2)] == 1:
+                if bitMap[int(self.position.x + self.image.get_width()/2)][int(self.position.y+2)] == 1:
                     print('stop jumping')
                     self.jumping = False
 
