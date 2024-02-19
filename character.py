@@ -216,10 +216,14 @@ class Viking:
                     print('stop jumping')
                     self.jumping = False
 
-        if key[pygame.K_UP]:
-            # Basculer l'état de visibilité du RPG7 lorsque la touche est enfoncée
-            self.rpg7_visible = not self.rpg7_visible
 
+        # if key[pygame.K_UP]:
+        #     # Basculer l'état de visibilité du RPG7 lorsque la touche est enfoncée
+        #     self.rpg7_visible = not self.rpg7_visible
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    self.rpg7_visible = not self.rpg7_visible
         # Si le RPG7 est visible, dessinez-le
         if self.rpg7_visible:
             self.draw_RPG7()
