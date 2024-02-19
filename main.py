@@ -174,12 +174,21 @@ def bresenham_circle(x0, y0, radius, bitMap):
 
 def winCheck(number_teams, number_vikings, teams):
     lastTeamAlive = None
-    for vikings in teams:
-        for viking in vikings.vikings:
-            if viking.health > 0:
-                return None
-            else:
-                lastTeamAlive = vikings
+    teamCount = []
+    for i in range(number_teams):
+        count = 0
+        for j in range(number_vikings):
+            if teams[i].vikings[j].health > 0:
+                count += 1
+        teamCount.append(count)
+    teamsLasting = 0
+    for i in range(number_teams):
+        if teamCount[i] > 0:
+            teamsLasting += 1
+    if teamsLasting == 1:
+        for i in range(number_teams):
+            if teamCount[i] > 0:
+                lastTeamAlive = teams[i]
     return lastTeamAlive
 
 
@@ -249,7 +258,7 @@ def loadGame(number_teams, number_vikings):
     while running_game:
         mousePressed = pygame.mouse.get_pressed(num_buttons=3)
         if mousePressed[0] and not rocketLaunched:
-            print('ça clique fort')
+            # print('ça clique fort')
             # Récupérer la position du clic de souris
             mouse_position = pygame.mouse.get_pos()
             # Calculer l'angle entre le Viking et la position du clic de souris
@@ -301,6 +310,11 @@ def loadGame(number_teams, number_vikings):
             if rocket.exploded:
                 perforateBitMap((rocket.x, rocket.y), map)
                 holesCoordinates.append((rocket.x, rocket.y))
+                for vikings2 in created_teams:
+                    for viking2 in vikings2.vikings:
+                        if abs(viking2.position.x - rocket.x) < (EXPLOSION_RADIUS + PERFORATION_OFFSET) and abs(viking2.position.y - rocket.y) < EXPLOSION_RADIUS:
+                            # viking2.health = viking2.health - int(abs(viking2.position.y - rocket.y) + abs(viking2.position.x - rocket.x)/2)
+                            viking2.health = -10
                 rocketLaunched = False
                 rocket = None
                 endRound = True
@@ -319,6 +333,7 @@ def loadGame(number_teams, number_vikings):
 
         # check for a winner
         win = winCheck(number_teams, number_vikings, created_teams)
+        # print(win)
         if win is not None:
             running_game = False
             winScreen(win)
@@ -331,6 +346,15 @@ def loadGame(number_teams, number_vikings):
             teamPlaying += 1
             if teamPlaying > number_teams - 1:
                 teamPlaying = 0
+            oldSelectedWorm = selectedWorm
+            while created_teams[teamPlaying].vikings[selectedWorm].health <= 0:
+                selectedWorm += 1
+                if selectedWorm > number_vikings - 1:
+                    selectedWorm = 0
+                if selectedWorm == oldSelectedWorm:
+                    teamPlaying += 1
+                    if teamPlaying > number_teams - 1:
+                        teamPlaying = 0
             nbVikingsOK = 0
             while nbVikingsOK == 0:
                 for eVikings in created_teams[teamPlaying].vikings:
@@ -363,13 +387,31 @@ def loadGame(number_teams, number_vikings):
             if not rightPressed and key[pygame.K_RIGHT]:
                 rightPressed = True
                 selectedWorm += 1
-                if selectedWorm > number_vikings-1:
+                if selectedWorm > number_vikings - 1:
                     selectedWorm = 0
+                oldSelectedWorm = selectedWorm
+                while created_teams[teamPlaying].vikings[selectedWorm].health <= 0:
+                    selectedWorm += 1
+                    if selectedWorm > number_vikings - 1:
+                        selectedWorm = 0
+                    if selectedWorm == oldSelectedWorm:
+                        teamPlaying += 1
+                        if teamPlaying > number_teams - 1:
+                            teamPlaying = 0
             if not leftPressed and key[pygame.K_LEFT]:
                 leftPressed = True
                 selectedWorm -= 1
                 if selectedWorm < 0:
-                    selectedWorm = number_vikings-1
+                    selectedWorm = number_vikings - 1
+                oldSelectedWorm = selectedWorm
+                while created_teams[teamPlaying].vikings[selectedWorm].health <= 0:
+                    selectedWorm -= 1
+                    if selectedWorm < 0:
+                        selectedWorm = number_vikings - 1
+                    if selectedWorm == oldSelectedWorm:
+                        teamPlaying += 1
+                        if teamPlaying > number_teams - 1:
+                            teamPlaying = 0
         if not key[pygame.K_RIGHT]:
             rightPressed = False
         if not key[pygame.K_LEFT]:
@@ -383,10 +425,10 @@ def loadGame(number_teams, number_vikings):
 
 
         for viking in vikings:
-            # viking.move(key, delta_time, map)
-            created_teams[teamPlaying].vikings[selectedWorm].move(key, delta_time, remainingTime, map)
-            viking.doMath(map)
-            viking.draw()
+            if not viking.health <= 0:
+                created_teams[teamPlaying].vikings[selectedWorm].move(key, delta_time, remainingTime, map)
+                viking.doMath(map)
+                viking.draw()
 
         screen.blit(DOWN_ARROW, ((created_teams[teamPlaying].vikings[selectedWorm].position.x + int(created_teams[teamPlaying].vikings[selectedWorm].image.get_width()/2)) - int(DOWN_ARROW.get_width()/2), created_teams[teamPlaying].vikings[selectedWorm].position.y - created_teams[teamPlaying].vikings[selectedWorm].image.get_height()*2))
 
