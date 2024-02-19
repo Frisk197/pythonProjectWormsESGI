@@ -110,6 +110,8 @@ class Viking:
         self.image = pygame.transform.scale(self.raw_image, (int(self.raw_image.get_width() * SCALE_VIKING), int(self.raw_image.get_height() * SCALE_VIKING)))
         self.image = pygame.transform.flip(self.image, True, False) if self.flipped else self.image
         self.rect = self.image.get_rect()
+        self.rpg7_visible = False
+
 
     def draw(self):
         screen.blit(self.image, (self.position.x, self.position.y - self.rect.height))
@@ -215,6 +217,11 @@ class Viking:
                     self.jumping = False
 
         if key[pygame.K_UP]:
+            # Basculer l'état de visibilité du RPG7 lorsque la touche est enfoncée
+            self.rpg7_visible = not self.rpg7_visible
+
+        # Si le RPG7 est visible, dessinez-le
+        if self.rpg7_visible:
             self.draw_RPG7()
 
     def draw_RPG7(self):
