@@ -140,6 +140,8 @@ def loadGame(number_teams, number_vikings):
     last_time = pygame.time.get_ticks()
     running_game = True
 
+    rocket = Rocket(100, 100, 180, 15, 9.8, 2, 0.75)
+
     while running_game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -165,6 +167,7 @@ def loadGame(number_teams, number_vikings):
         current_time = pygame.time.get_ticks()
         delta_time = (current_time - last_time) / 1000.0
         last_time = current_time
+
 
 
         rocket.update(delta_time)
