@@ -28,7 +28,6 @@ class Viking:
         self.image = pygame.transform.scale(self.raw_image, (int(self.raw_image.get_width() * SCALE_VIKING), int(self.raw_image.get_height() * SCALE_VIKING)))
         self.image = pygame.transform.flip(self.image, True, False) if self.flipped else self.image
         self.rect = self.image.get_rect()
-        self.rpg7_visible = False
 
 
     def draw(self):
@@ -79,27 +78,27 @@ class Viking:
         self.initialY = initialY
         self.initialTime = pygame.time.get_ticks()
 
-    def shoot(self):
-        if self.stock_rocket > 0:
-            self.stock_rocket -= 1
-        else:
-            print(f"{self.name} has no rocket")
+    # def shoot(self):
+    #     if self.stock_rocket > 0:
+    #         self.stock_rocket -= 1
+    #     else:
+    #         print(f"{self.name} has no rocket")
 
-    def takeDamage(self, damage):
-        self.health -= damage
-        if self.health <= 0:
-            print(f"{self.name} died")
-        else:
-            print(f"{self.name} has lost {damage} health")
+    # def takeDamage(self, damage):
+    #     self.health -= damage
+    #     if self.health <= 0:
+    #         print(f"{self.name} died")
+    #     else:
+    #         print(f"{self.name} has lost {damage} health")
 
-    def reload(self):
-        self.stock_rocket = 5
+    # def reload(self):
+    #     self.stock_rocket = 5
 
     def getFlipped(self, flipped):
         self.flipped = flipped
         self.image = pygame.transform.flip(self.image, True, False)
 
-    def move(self, key, delta_time, timer, bitMap):
+    def move(self, key, delta_time, timer, bitMap, rocketSelected):
         left_movement = key[pygame.K_q]
         right_movement = key[pygame.K_d]
         take_rpg = key[pygame.K_UP]
@@ -138,16 +137,7 @@ class Viking:
                     print('stop jumping')
                     self.jumping = False
 
-
-        # if key[pygame.K_UP]:
-        #     # Basculer l'état de visibilité du RPG7 lorsque la touche est enfoncée
-        #     self.rpg7_visible = not self.rpg7_visible
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    self.rpg7_visible = not self.rpg7_visible
-        # Si le RPG7 est visible, dessinez-le
-        if self.rpg7_visible:
+        if rocketSelected:
             self.draw_RPG7()
 
     def draw_RPG7(self):

@@ -270,8 +270,6 @@ def loadGame(number_teams, number_vikings):
     rightPressed = False
     leftPressed = False
 
-    ePressed = False
-
     if DEBUG_ENABLED:
         mouse0Pressed = False
 
@@ -279,7 +277,6 @@ def loadGame(number_teams, number_vikings):
     running_game = True
 
     rocketSelected = False
-    grenadeSelected = True
 
     rocketLaunched = False
     grenadeLaunched = False
@@ -292,37 +289,27 @@ def loadGame(number_teams, number_vikings):
         mousePressed = pygame.mouse.get_pressed(num_buttons=3)
         if mousePressed:
             mouse_position = pygame.mouse.get_pos()
-        if mousePressed[0] and not rocketLaunched:
-            if created_teams[teamPlaying].vikings[selectedWorm].rpg7_visible:  # Vérifiez si le RPG7 est visible
-                # print('ça clique fort')
-                # Récupérer la position du clic de souris
-                mouse_position = pygame.mouse.get_pos()
-                # Calculer l'angle entre le Viking et la position du clic de souris
-                angle = get_angle((created_teams[teamPlaying].vikings[selectedWorm].position.x, created_teams[teamPlaying].vikings[selectedWorm].position.y), mouse_position)
-                # Créer la roquette avec l'angle sélectionné
-                rocket = Rocket(created_teams[teamPlaying].vikings[selectedWorm].position.x, created_teams[teamPlaying].vikings[selectedWorm].position.y - created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle+180, 20, 9.8, 2, 0.75)
-                rocketLaunched = True
 
             angle = get_angle((created_teams[teamPlaying].vikings[selectedWorm].position.x,
                                created_teams[teamPlaying].vikings[selectedWorm].position.y), mouse_position)
-            if mousePressed[0] and not rocketLaunched and not grenadeLaunched:
-                if created_teams[teamPlaying].vikings[selectedWorm].rpg7_visible:
 
-                    rocket = Rocket(created_teams[teamPlaying].vikings[selectedWorm].position.x,
-                                    created_teams[teamPlaying].vikings[selectedWorm].position.y -
-                                    created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle + 180,
-                                    20, 9.8, 2, 0.75)
-                    rocketLaunched = True
+            if mousePressed[0] and not rocketLaunched and not grenadeLaunched and rocketSelected and not endRound:
 
-                else:
-                    grenade = Grenade(created_teams[teamPlaying].vikings[selectedWorm].position.x,
-                                    created_teams[teamPlaying].vikings[selectedWorm].position.y + 10 -
-                                    created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle + 180,
-                                      abs(created_teams[teamPlaying].vikings[selectedWorm].position.x - mouse_position[0]),
-                                      abs(created_teams[teamPlaying].vikings[selectedWorm].position.y - mouse_position[1]))
-                    grenadeLaunched = True
+                rocket = Rocket(created_teams[teamPlaying].vikings[selectedWorm].position.x,
+                                created_teams[teamPlaying].vikings[selectedWorm].position.y -
+                                created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle + 180,
+                                20, 9.8, 2, 0.75)
+                rocketLaunched = True
 
-            if mousePressed[2] and not grenadeLaunched and not rocketLaunched:
+            elif mousePressed[0] and not rocketLaunched and not grenadeLaunched and not rocketSelected and not endRound:
+                grenade = Grenade(created_teams[teamPlaying].vikings[selectedWorm].position.x,
+                                created_teams[teamPlaying].vikings[selectedWorm].position.y + 10 -
+                                created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle + 180,
+                                  abs(created_teams[teamPlaying].vikings[selectedWorm].position.x - mouse_position[0]),
+                                  abs(created_teams[teamPlaying].vikings[selectedWorm].position.y - mouse_position[1]))
+                grenadeLaunched = True
+
+            if mousePressed[2] and not grenadeLaunched and not rocketLaunched and not rocketSelected:
                 fakeGrenade = Grenade(created_teams[teamPlaying].vikings[selectedWorm].position.x,
                                       created_teams[teamPlaying].vikings[selectedWorm].position.y + 10 -
                                       created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle + 180,
@@ -411,16 +398,15 @@ def loadGame(number_teams, number_vikings):
                                 (abs(viking2.position.x - grenade.position.x) + abs(viking2.position.y - grenade.position.y)) / 2))
                 grenadeLaunched = False
                 grenade = None
+                endRound = True
 
 
         key = pygame.key.get_pressed()
 
         if key[pygame.K_UP]:
             rocketSelected = True
-            grenadeSelected = False
         if key[pygame.K_DOWN]:
             rocketSelected = False
-            grenadeSelected = True
 
         if key[pygame.K_DELETE]:
             vikings[0].thereWasGround = False
@@ -465,13 +451,14 @@ def loadGame(number_teams, number_vikings):
             timerStarted = True
             movingStartTime = pygame.time.get_ticks()
 
+
         remainingTime = MOVING_TIME
         if timerStarted:
             remainingTime = MOVING_TIME - ((pygame.time.get_ticks() - movingStartTime) / 1000)
         if remainingTime <= 0:
             remainingTime = 0
             endRound = True
-        if rocketLaunched:
+        if rocketLaunched or grenadeLaunched:
             remainingTime = 0
         timerText = font.render(str(int(remainingTime)), True, Colors.BLUE)
         screen.blit(timerText, (SCREEN_WIDTH - timerText.get_width(), 0))
@@ -526,15 +513,17 @@ def loadGame(number_teams, number_vikings):
         hp = font.render(str(created_teams[teamPlaying].vikings[selectedWorm].health), True, Colors.GREEN)
         screen.blit(hp, (SCREEN_WIDTH - hp.get_width(), hp.get_height()))
 
+        areTheyFalling = []
         for viking in vikings:
+            areTheyFalling.append(viking.falling)
             if not viking.health <= 0:
-                created_teams[teamPlaying].vikings[selectedWorm].move(key, delta_time, remainingTime, map)
+                created_teams[teamPlaying].vikings[selectedWorm].move(key, delta_time, remainingTime, map, rocketSelected)
                 if created_teams[teamPlaying].vikings[selectedWorm].isMoving:
                     grenade.position.x = created_teams[teamPlaying].vikings[selectedWorm].position.x
                     grenade.position.y = created_teams[teamPlaying].vikings[selectedWorm].position.y
-
                 viking.doMath(map)
                 viking.draw()
+        print(areTheyFalling)
 
         screen.blit(DOWN_ARROW, ((created_teams[teamPlaying].vikings[selectedWorm].position.x + int(
             created_teams[teamPlaying].vikings[selectedWorm].image.get_width() / 2)) - int(DOWN_ARROW.get_width() / 2),
