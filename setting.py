@@ -1,6 +1,5 @@
 import pygame
 import random
-import numpy as np
 import math
 
 # ESGI - PARIS
@@ -58,7 +57,7 @@ class Colors:
     BLUE = (0, 0, 255)
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
-    SKY_BLUE = (0, 150, 150)
+    SKY_BLUE = (40, 180, 255)
 
     class TERRAIN:
         GRASS2 = (80, 181, 156)
