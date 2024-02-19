@@ -1,3 +1,5 @@
+import math
+
 from setting import *
 
 
@@ -17,7 +19,76 @@ class Team:
         self.vikings = []
         for i in range(nb_viking):
             self.vikings.append(Viking(i, image_path=f"images/player/Viking{id + 1}.png"))
+class Rocket:
+    def __init__(self, x, y, angle, force, gravity, wind, drag_coefficient):
+        self.x = x
+        self.y = y
+        self.angle = math.radians(angle)  # Convertir l'angle en radians
+        self.force = force
+        self.gravity = gravity
+        self.wind = wind
+        self.explosion_radius = 10
+        self.exploded = False
+        self.drag_coefficient = drag_coefficient  # Coefficient de traînée
+        self.original_image = pygame.image.load("images/weapons/Rocket.png")
+        self.image = pygame.transform.scale(self.original_image, (int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
+        self.rect = self.image.get_rect()
 
+    def update(self, delta_time):
+        if not self.exploded:
+            if not self.exploded:
+                time = pygame.time.get_ticks() / 1000  # Convertir le temps en secondes
+
+                # Calculer les composantes x et y de la force initiale
+                force_x = self.force * math.cos(self.angle)
+                force_y = self.force * math.sin(self.angle)
+
+                # Calculer la force de traînée en fonction de la vitesse
+                drag_force_x = -0.5 * self.drag_coefficient * self.force * self.force * math.cos(self.angle)
+                drag_force_y = -0.5 * self.drag_coefficient * self.force * self.force * math.sin(self.angle)
+
+                # Mettre à jour les composantes x et y de la vitesse en fonction de la force, de la gravité, du vent et de la traînée
+                self.x += (force_x + drag_force_x) * delta_time
+                self.y += (force_y + drag_force_y + self.gravity) * delta_time + self.wind * delta_time
+
+            # Vérifier si la roquette a atteint le sol, les bords de l'écran ou s'il y a une collision avec un obstacle
+            if self.y <= 0 or self.y >= SCREEN_HEIGHT or self.x <= 0 or self.x >= SCREEN_WIDTH or self.check_collision():
+                self.explode()
+    def check_collision(self):
+        # Insérer le code pour vérifier s'il y a collision avec un obstacle
+        return False
+
+    def explode(self):
+        # Insérer le code pour gérer l'explosion de la roquette
+        self.exploded = True
+    def draw(self, screen):
+        # Dessinez l'image de la roquette à sa position actuelle sur l'écran
+        screen.blit(self.image, (self.x, self.y))
+
+# Exemple d'utilisation :
+def get_angle(viking_position, mouse_position):
+    # Calculer la différence entre les coordonnées x des deux points
+    delta_x = mouse_position[0] - viking_position[0]
+    # Calculer la différence entre les coordonnées y des deux points
+    delta_y = mouse_position[1] - viking_position[1]
+    # Calculer l'angle en radians entre les deux points
+    angle_radians = math.atan2(delta_y, delta_x)
+    # Convertir l'angle en degrés
+    angle_degrees = math.degrees(angle_radians)
+    # Ajuster l'angle pour qu'il soit dans le bon intervalle
+    if angle_degrees < 0:
+        angle_degrees += 360
+    return angle_degrees
+class RPG7:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.original_image = pygame.image.load("images/weapons/Rpg7.png")
+        self.image = pygame.transform.scale(self.original_image, (int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
+        self.rect = self.image.get_rect()
+
+    def draw(self):
+        screen.blit(self.image, (self.x, self.y))
 
 class Viking:
     def __init__(self, id, name="", health=100, image_path="", flipped=False):
@@ -140,7 +211,14 @@ class Viking:
                     print('stop jumping')
                     self.jumping = False
 
+        if key[pygame.K_UP]:
+            self.draw_RPG7()
 
+    def draw_RPG7(self):
+        # Créer un objet de rocket à la position du viking
+        LaunchRPG7=RPG7(self.position.x, self.position.y-40)
+        # Dessiner le rocket à l'écran
+        LaunchRPG7.draw()
 
     def setupJump(self, initialY, jump_velocity):
         self.thereWasGround = True

@@ -1,6 +1,6 @@
 from setting import *
 from terrain_generation import genWorldDestructible, drawDestructibleWorldFullOptimized
-from character import Team
+from character import Team, Rocket, get_angle
 
 
 def loadMainMenu(teams, vikings):
@@ -138,13 +138,22 @@ def loadGame(number_teams, number_vikings):
     vikings = [viking for team in created_teams for viking in team.vikings]
 
     last_time = pygame.time.get_ticks()
-
     running_game = True
+
     while running_game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running_game = False
-
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Clic gauche de la souris
+                    # Récupérer la position du clic de souris
+                    mouse_position = pygame.mouse.get_pos()
+                    # Récupérer la position du premier viking de la première équipe
+                    viking_position = vikings[0].position
+                    # Calculer l'angle entre le Viking et la position du clic de souris
+                    angle = get_angle((viking_position.x, viking_position.y), mouse_position)
+                    # Créer la roquette avec l'angle sélectionné
+                    rocket = Rocket(viking_position.x, viking_position.y-viking.image.get_height(), angle+180, 20, 9.8, 2, 0.75)
         screen.fill(Colors.BLACK)
         pygame.draw.polygon(screen, Colors.RED, polygone_map)
 
@@ -158,6 +167,9 @@ def loadGame(number_teams, number_vikings):
         last_time = current_time
 
 
+        rocket.update(delta_time)
+        rocket.draw(screen)
+        print(f"Position : ({rocket.x}, {rocket.y})")
 
         key = pygame.key.get_pressed()
 
