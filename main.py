@@ -323,7 +323,8 @@ def loadGame(number_teams, number_vikings):
                                       abs(created_teams[teamPlaying].vikings[selectedWorm].position.y - mouse_position[1]))
                 aimGrenadeLaunched = True
 
-        screen.blit(SKY_BG, SKY_BG.get_rect())
+        # screen.blit(SKY_BG, SKY_BG.get_rect())
+        screen.fill(Colors.SKY_BLUE)
         pygame.draw.polygon(screen, TERRAIN_COLOR, polygone_map)
 
         # draw holes
