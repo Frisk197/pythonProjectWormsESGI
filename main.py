@@ -2,7 +2,8 @@ import pygame
 
 from setting import *
 from terrain_generation import genWorldDestructible, drawDestructibleWorldFullOptimized
-from character import Team, Rocket, get_angle
+from character import Team
+from weapons import Rocket, Grenade, get_angle
 
 
 def loadMainMenu(teams, vikings):
@@ -28,23 +29,30 @@ def loadMainMenu(teams, vikings):
             opacity = 0
             opacity_up = True
 
-        screen.fill(Colors.BLACK)
+        screen.blit(SKY_BG_MENU, SKY_BG_MENU.get_rect())
 
         font = pygame.font.SysFont('', 70)
 
-        line1 = font.render(f"équipes: {teams} ", True, Colors.RED)
-        line2 = font.render(f"vikings par équipes: {vikings} ", True, Colors.RED)
-        line3 = font.render('Appuyez sur ENTRER pour commencer', True, (Colors.RED[0] * opacity, 0, 0))
+        line1 = font.render(f"équipes: {teams} ", True, Colors.BLACK)
+        line2 = font.render(f"vikings par équipes: {vikings} ", True, Colors.BLACK)
+        line3 = font.render('Appuyez sur ENTRER pour commencer', True,
+                            (Colors.WHITE[0] * opacity, Colors.WHITE[1] * opacity, Colors.WHITE[2] * opacity))
 
-        screen.blit(line1, ((SCREEN_WIDTH / 2) - (line1.get_width() / 2) - 50, (SCREEN_HEIGHT / 2) - (line1.get_height())))
-        screen.blit(UP_ARROW, ((SCREEN_WIDTH / 2) + (line1.get_width() / 2), (SCREEN_HEIGHT / 2) - (line1.get_height() * 1.5)))
-        screen.blit(DOWN_ARROW, ((SCREEN_WIDTH / 2) + (line1.get_width() / 2), (SCREEN_HEIGHT / 2) - (line1.get_height() / 1.5)))
+        screen.blit(line1,
+                    ((SCREEN_WIDTH / 2) - (line1.get_width() / 2) - 50, (SCREEN_HEIGHT / 2) - (line1.get_height())))
+        screen.blit(UP_ARROW,
+                    ((SCREEN_WIDTH / 2) + (line1.get_width() / 2), (SCREEN_HEIGHT / 2) - (line1.get_height() * 1.5)))
+        screen.blit(DOWN_ARROW,
+                    ((SCREEN_WIDTH / 2) + (line1.get_width() / 2), (SCREEN_HEIGHT / 2) - (line1.get_height() / 1.5)))
 
         screen.blit(line2, ((SCREEN_WIDTH / 2) - (line2.get_width() / 2), (SCREEN_HEIGHT / 2) + (line2.get_height())))
-        screen.blit(LEFT_ARROW, ((SCREEN_WIDTH / 2) + (line2.get_width() / 2), (SCREEN_HEIGHT / 2) + (line2.get_height())))
-        screen.blit(RIGHT_ARROW, ((SCREEN_WIDTH / 2) + (line2.get_width() / 2) + 50, (SCREEN_HEIGHT / 2) + (line2.get_height())))
+        screen.blit(LEFT_ARROW,
+                    ((SCREEN_WIDTH / 2) + (line2.get_width() / 2), (SCREEN_HEIGHT / 2) + (line2.get_height())))
+        screen.blit(RIGHT_ARROW,
+                    ((SCREEN_WIDTH / 2) + (line2.get_width() / 2) + 50, (SCREEN_HEIGHT / 2) + (line2.get_height())))
 
-        screen.blit(line3, ((SCREEN_WIDTH / 2) - (line3.get_width() / 2), (SCREEN_HEIGHT / 2) + (line3.get_height() * 3)))
+        screen.blit(line3,
+                    ((SCREEN_WIDTH / 2) - (line3.get_width() / 2), (SCREEN_HEIGHT / 2) + (line3.get_height() * 3)))
 
         key = pygame.key.get_pressed()
 
@@ -127,7 +135,7 @@ def placeVikings(teams):
                 break
 
         if random.choice([True, False]):
-            viking.getFlipped()
+            viking.getFlipped(True)
 
 
 def perforateBitMap(center, bitMap):
@@ -142,34 +150,55 @@ def perforateBitMap(center, bitMap):
         bresenham_circle(center[0] + PERFORATION_OFFSET, center[1] - PERFORATION_OFFSET, i, bitMap)
         bresenham_circle(center[0], center[1], i, bitMap)
 
+
 def bresenham_circle(x0, y0, radius, bitMap):
     x = radius
     y = 0
     err = 0
 
     while x >= y:
-        if not x0 + x < 0 and not x0 + x >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 + y < 0 and not y0 + y >= int(SCREEN_HEIGHT/TILE_SIZE):
+        if not x0 + x < 0 and not x0 + x >= int(SCREEN_WIDTH / TILE_SIZE) and not y0 + y < 0 and not y0 + y >= int(
+                SCREEN_HEIGHT / TILE_SIZE):
             bitMap[int(x0 + x)][int(y0 + y)] = 0
-        if not x0 + y < 0 and not x0 + y >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 + x < 0 and not y0 + x >= int(SCREEN_HEIGHT/TILE_SIZE):
+        if not x0 + y < 0 and not x0 + y >= int(SCREEN_WIDTH / TILE_SIZE) and not y0 + x < 0 and not y0 + x >= int(
+                SCREEN_HEIGHT / TILE_SIZE):
             bitMap[int(x0 + y)][int(y0 + x)] = 0
-        if not x0 - y < 0 and not x0 - y >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 + x < 0 and not y0 + x >= int(SCREEN_HEIGHT/TILE_SIZE):
+        if not x0 - y < 0 and not x0 - y >= int(SCREEN_WIDTH / TILE_SIZE) and not y0 + x < 0 and not y0 + x >= int(
+                SCREEN_HEIGHT / TILE_SIZE):
             bitMap[int(x0 - y)][int(y0 + x)] = 0
-        if not x0 - x < 0 and not x0 - x >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 + y < 0 and not y0 + y >= int(SCREEN_HEIGHT/TILE_SIZE):
+        if not x0 - x < 0 and not x0 - x >= int(SCREEN_WIDTH / TILE_SIZE) and not y0 + y < 0 and not y0 + y >= int(
+                SCREEN_HEIGHT / TILE_SIZE):
             bitMap[int(x0 - x)][int(y0 + y)] = 0
-        if not x0 - x < 0 and not x0 - x >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 - y < 0 and not y0 - y >= int(SCREEN_HEIGHT/TILE_SIZE):
+        if not x0 - x < 0 and not x0 - x >= int(SCREEN_WIDTH / TILE_SIZE) and not y0 - y < 0 and not y0 - y >= int(
+                SCREEN_HEIGHT / TILE_SIZE):
             bitMap[int(x0 - x)][int(y0 - y)] = 0
-        if not x0 - y < 0 and not x0 - y >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 - x < 0 and not y0 - x >= int(SCREEN_HEIGHT/TILE_SIZE):
+        if not x0 - y < 0 and not x0 - y >= int(SCREEN_WIDTH / TILE_SIZE) and not y0 - x < 0 and not y0 - x >= int(
+                SCREEN_HEIGHT / TILE_SIZE):
             bitMap[int(x0 - y)][int(y0 - x)] = 0
-        if not x0 + y < 0 and not x0 + y >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 - x < 0 and not y0 - x >= int(SCREEN_HEIGHT/TILE_SIZE):
+        if not x0 + y < 0 and not x0 + y >= int(SCREEN_WIDTH / TILE_SIZE) and not y0 - x < 0 and not y0 - x >= int(
+                SCREEN_HEIGHT / TILE_SIZE):
             bitMap[int(x0 + y)][int(y0 - x)] = 0
-        if not x0 + x < 0 and not x0 + x >= int(SCREEN_WIDTH/TILE_SIZE) and not y0 - x < 0 and not y0 - x >= int(SCREEN_HEIGHT/TILE_SIZE):
+        if not x0 + x < 0 and not x0 + x >= int(SCREEN_WIDTH / TILE_SIZE) and not y0 - x < 0 and not y0 - x >= int(
+                SCREEN_HEIGHT / TILE_SIZE):
             bitMap[int(x0 + x)][int(y0 - x)] = 0
 
         y += 1
-        err += 1 + 2*y
-        if 2*(err-x) + 1 > 0:
+        err += 1 + 2 * y
+        if 2 * (err - x) + 1 > 0:
             x -= 1
-            err += 1 - 2*x
+            err += 1 - 2 * x
+
+
+def explosion(teams, weapon, holesCoordinates):
+    perforateBitMap((weapon.position.x, weapon.position.y), map)
+    holesCoordinates.append((weapon.position.x, weapon.position.y))
+    for vikings2 in teams:
+        for viking2 in vikings2.vikings:
+            if abs(viking2.position.x - weapon.position.x) < (EXPLOSION_RADIUS + PERFORATION_OFFSET) and abs(
+                    viking2.position.y - weapon.position.y) < EXPLOSION_RADIUS:
+                viking2.health -= (100 - int(
+                    (abs(viking2.position.x - weapon.position.x) + abs(viking2.position.y - weapon.position.y)) / 2))
+    return holesCoordinates
 
 
 def winCheck(number_teams, number_vikings, teams):
@@ -198,12 +227,14 @@ def winScreen(team):
     while runningWinScreen:
         screen.fill(Colors.BLACK)
         font = pygame.font.SysFont('', 70)
-        text = font.render("GG Team " + str(team.id+1), True, Colors.GREEN)
+        text = font.render("GG Team " + str(team.id + 1), True, Colors.GREEN)
         text2 = font.render("Play again ? [SPACE]", True, Colors.GREEN)
         text3 = font.render("Stop ? [DEL]", True, Colors.GREEN)
-        screen.blit(text, (int(SCREEN_WIDTH/2) - int(text.get_width()/2), int(SCREEN_HEIGHT/2) - text.get_height()*2))
-        screen.blit(text2, (int(SCREEN_WIDTH/2) - int(text2.get_width()/2), int(SCREEN_HEIGHT/2)))
-        screen.blit(text3, (int(SCREEN_WIDTH/2) - int(text3.get_width()/2), int(SCREEN_HEIGHT/2) + text3.get_height()*2))
+        screen.blit(text,
+                    (int(SCREEN_WIDTH / 2) - int(text.get_width() / 2), int(SCREEN_HEIGHT / 2) - text.get_height() * 2))
+        screen.blit(text2, (int(SCREEN_WIDTH / 2) - int(text2.get_width() / 2), int(SCREEN_HEIGHT / 2)))
+        screen.blit(text3, (
+        int(SCREEN_WIDTH / 2) - int(text3.get_width() / 2), int(SCREEN_HEIGHT / 2) + text3.get_height() * 2))
 
         key = pygame.key.get_pressed()
 
@@ -216,7 +247,6 @@ def winScreen(team):
             if event.type == pygame.QUIT:
                 pygame.quit()
         pygame.display.update()
-
 
 
 def loadGame(number_teams, number_vikings):
@@ -248,15 +278,20 @@ def loadGame(number_teams, number_vikings):
     last_time = pygame.time.get_ticks()
     running_game = True
 
-    rocketSelected = True
+    rocketSelected = False
+    grenadeSelected = True
 
     rocketLaunched = False
+    grenadeLaunched = False
+    aimGrenadeLaunched = False
 
     endRound = False
 
-
     while running_game:
+
         mousePressed = pygame.mouse.get_pressed(num_buttons=3)
+        if mousePressed:
+            mouse_position = pygame.mouse.get_pos()
         if mousePressed[0] and not rocketLaunched:
             if created_teams[teamPlaying].vikings[selectedWorm].rpg7_visible:  # Vérifiez si le RPG7 est visible
                 # print('ça clique fort')
@@ -268,21 +303,40 @@ def loadGame(number_teams, number_vikings):
                 rocket = Rocket(created_teams[teamPlaying].vikings[selectedWorm].position.x, created_teams[teamPlaying].vikings[selectedWorm].position.y - created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle+180, 20, 9.8, 2, 0.75)
                 rocketLaunched = True
 
+            angle = get_angle((created_teams[teamPlaying].vikings[selectedWorm].position.x,
+                               created_teams[teamPlaying].vikings[selectedWorm].position.y), mouse_position)
+            if mousePressed[0] and not rocketLaunched and not grenadeLaunched:
+                if created_teams[teamPlaying].vikings[selectedWorm].rpg7_visible:
 
+                    rocket = Rocket(created_teams[teamPlaying].vikings[selectedWorm].position.x,
+                                    created_teams[teamPlaying].vikings[selectedWorm].position.y -
+                                    created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle + 180,
+                                    20, 9.8, 2, 0.75)
+                    rocketLaunched = True
 
+                else:
+                    grenade = Grenade(created_teams[teamPlaying].vikings[selectedWorm].position.x,
+                                    created_teams[teamPlaying].vikings[selectedWorm].position.y + 10 -
+                                    created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle + 180,
+                                      abs(created_teams[teamPlaying].vikings[selectedWorm].position.x - mouse_position[0]),
+                                      abs(created_teams[teamPlaying].vikings[selectedWorm].position.y - mouse_position[1]))
+                    grenadeLaunched = True
 
-        # draw full map
-        screen.fill(Colors.BLACK)
-        pygame.draw.polygon(screen, Colors.RED, polygone_map)
-        #
+            if mousePressed[2] and not grenadeLaunched and not rocketLaunched:
+                fakeGrenade = Grenade(created_teams[teamPlaying].vikings[selectedWorm].position.x,
+                                      created_teams[teamPlaying].vikings[selectedWorm].position.y + 10 -
+                                      created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle + 180,
+                                      abs(created_teams[teamPlaying].vikings[selectedWorm].position.x - mouse_position[0]),
+                                      abs(created_teams[teamPlaying].vikings[selectedWorm].position.y - mouse_position[1]))
+                aimGrenadeLaunched = True
+
+        # screen.blit(SKY_BG, SKY_BG.get_rect())
+        screen.fill(Colors.SKY_BLUE)
+        pygame.draw.polygon(screen, TERRAIN_COLOR, polygone_map)
 
         # draw holes
         for hole in holesCoordinates:
-            pygame.draw.circle(screen, Colors.BLACK, hole, EXPLOSION_RADIUS + PERFORATION_OFFSET)
-        #
-
-
-
+            pygame.draw.circle(screen, Colors.SKY_BLUE, hole, EXPLOSION_RADIUS + PERFORATION_OFFSET)
 
         # debug mode to create holes with mouse left click
         if DEBUG_ENABLED:
@@ -294,14 +348,12 @@ def loadGame(number_teams, number_vikings):
                 perforateBitMap(mouseCoordinates, map)
             if not mousePressed[2] and mouse0Pressed:
                 mouse0Pressed = False
-        #
 
         # clock update and fps counter
         clock.tick()
         font = pygame.font.SysFont('', 70)
         fps_text = font.render(str(int(clock.get_fps())), True, Colors.GREEN)
         screen.blit(fps_text, (0, 0))
-        #
 
         current_time = pygame.time.get_ticks()
         delta_time = (current_time - last_time) / 1000.0
@@ -309,25 +361,66 @@ def loadGame(number_teams, number_vikings):
 
         if rocketLaunched:
             rocket.update(delta_time, map)
-            rocket.draw(screen)
+            rocket.draw()
             if rocket.exploded:
                 perforateBitMap((rocket.x, rocket.y), map)
                 holesCoordinates.append((rocket.x, rocket.y))
                 for vikings2 in created_teams:
                     for viking2 in vikings2.vikings:
-                        if abs(viking2.position.x - rocket.x) < (EXPLOSION_RADIUS + PERFORATION_OFFSET) and abs(viking2.position.y - rocket.y) < EXPLOSION_RADIUS:
-                            viking2.health -= (100 - int((abs(viking2.position.x - rocket.x) + abs(viking2.position.y - rocket.y))/2))
+                        if abs(viking2.position.x - rocket.x) < (
+                                EXPLOSION_RADIUS + PERFORATION_OFFSET) and abs(
+                                viking2.position.y - rocket.y) < EXPLOSION_RADIUS:
+                            viking2.position.x = viking2.position.x + ((viking2.position.x - rocket.x) * 2.5)
+                            viking2.position.y = viking2.position.y + ((viking2.position.y - rocket.y) * 2.5)
+                            print(str(abs(viking2.position.x - rocket.x)) + ' ' + str(
+                                abs(viking2.position.y - rocket.y)))
+                            print(str((abs(viking2.position.x - rocket.x) + abs(
+                                viking2.position.y - rocket.y)) / 2))
+                            viking2.health -= (100 - int(
+                                (abs(viking2.position.x - rocket.x) + abs(
+                                    viking2.position.y - rocket.y)) / 2))
+
                 rocketLaunched = False
                 rocket = None
                 endRound = True
-            # print(f"Position : ({rocket.x}, {rocket.y})")
+
+        if aimGrenadeLaunched:
+            fakeGrenade.start_preview_trajectory()
+            fakeGrenade.calculate_trajectory(map)
+            fakeGrenade.draw()
+
+        if grenadeLaunched:
+            if aimGrenadeLaunched:
+                fakeGrenade.stop_preview_trajectory()
+                fakeGrenade = None
+                aimGrenadeLaunched = False
+            grenade.update(map)
+            grenade.draw()
+            if grenade.exploded:
+                perforateBitMap((grenade.position.x, grenade.position.y), map)
+                holesCoordinates.append((grenade.position.x, grenade.position.y))
+                for vikings2 in created_teams:
+                    for viking2 in vikings2.vikings:
+                        if abs(viking2.position.x - grenade.position.x) < (EXPLOSION_RADIUS + PERFORATION_OFFSET) and abs(
+                                viking2.position.y - grenade.position.y) < EXPLOSION_RADIUS:
+                            viking2.position.x = viking2.position.x + ((viking2.position.x - grenade.position.x) * 1.5)
+                            viking2.position.y = viking2.position.y + ((viking2.position.y - grenade.position.y) * 1.5)
+                            print(str(abs(viking2.position.x - grenade.position.x)) + ' ' + str(abs(viking2.position.y - grenade.position.y)))
+                            print(str((abs(viking2.position.x - grenade.position.x) + abs(viking2.position.y - grenade.position.y)) / 2))
+                            viking2.health -= (grenade.damage - int(
+                                (abs(viking2.position.x - grenade.position.x) + abs(viking2.position.y - grenade.position.y)) / 2))
+                grenadeLaunched = False
+                grenade = None
+
 
         key = pygame.key.get_pressed()
 
         if key[pygame.K_UP]:
             rocketSelected = True
+            grenadeSelected = False
         if key[pygame.K_DOWN]:
             rocketSelected = False
+            grenadeSelected = True
 
         if key[pygame.K_DELETE]:
             vikings[0].thereWasGround = False
@@ -339,13 +432,12 @@ def loadGame(number_teams, number_vikings):
         if win is not None:
             running_game = False
             winScreen(win)
-        #
 
-        # end round and select next team
         if endRound:
             endRound = False
             timerStarted = False
             teamPlaying += 1
+
             if teamPlaying > number_teams - 1:
                 teamPlaying = 0
             oldSelectedWorm = selectedWorm
@@ -369,22 +461,21 @@ def loadGame(number_teams, number_vikings):
         #
 
         # handle timer
-        if (key[pygame.K_q] or key[pygame.K_d] or key[pygame.K_z] or key[pygame.K_SPACE]) and not timerStarted:
+        if (key[pygame.K_q] or key[pygame.K_d] or key[pygame.K_z] or key[pygame.K_SPACE] or mousePressed[1] or mousePressed[2]) and not timerStarted:
             timerStarted = True
             movingStartTime = pygame.time.get_ticks()
 
         remainingTime = MOVING_TIME
         if timerStarted:
-            remainingTime = MOVING_TIME - ((pygame.time.get_ticks() - movingStartTime)/1000)
+            remainingTime = MOVING_TIME - ((pygame.time.get_ticks() - movingStartTime) / 1000)
         if remainingTime <= 0:
             remainingTime = 0
+            endRound = True
         if rocketLaunched:
             remainingTime = 0
         timerText = font.render(str(int(remainingTime)), True, Colors.BLUE)
         screen.blit(timerText, (SCREEN_WIDTH - timerText.get_width(), 0))
-        #
 
-        #
         if not timerStarted and (not rightPressed or not leftPressed) and (key[pygame.K_RIGHT] or key[pygame.K_LEFT]):
             if not rightPressed and key[pygame.K_RIGHT]:
                 rightPressed = True
@@ -435,16 +526,20 @@ def loadGame(number_teams, number_vikings):
         hp = font.render(str(created_teams[teamPlaying].vikings[selectedWorm].health), True, Colors.GREEN)
         screen.blit(hp, (SCREEN_WIDTH - hp.get_width(), hp.get_height()))
 
-
         for viking in vikings:
             if not viking.health <= 0:
                 created_teams[teamPlaying].vikings[selectedWorm].move(key, delta_time, remainingTime, map)
+                if created_teams[teamPlaying].vikings[selectedWorm].isMoving:
+                    grenade.position.x = created_teams[teamPlaying].vikings[selectedWorm].position.x
+                    grenade.position.y = created_teams[teamPlaying].vikings[selectedWorm].position.y
+
                 viking.doMath(map)
                 viking.draw()
 
-        screen.blit(DOWN_ARROW, ((created_teams[teamPlaying].vikings[selectedWorm].position.x + int(created_teams[teamPlaying].vikings[selectedWorm].image.get_width()/2)) - int(DOWN_ARROW.get_width()/2), created_teams[teamPlaying].vikings[selectedWorm].position.y - created_teams[teamPlaying].vikings[selectedWorm].image.get_height()*2))
-
-
+        screen.blit(DOWN_ARROW, ((created_teams[teamPlaying].vikings[selectedWorm].position.x + int(
+            created_teams[teamPlaying].vikings[selectedWorm].image.get_width() / 2)) - int(DOWN_ARROW.get_width() / 2),
+                                 created_teams[teamPlaying].vikings[selectedWorm].position.y -
+                                 created_teams[teamPlaying].vikings[selectedWorm].image.get_height() * 2))
 
         for event in pygame.event.get():
             if key[pygame.K_DELETE]:
@@ -456,7 +551,6 @@ def loadGame(number_teams, number_vikings):
 
 running = True
 while running:
-
 
     number_teams_and_vikings = loadMainMenu(DEFAULT_NUMBER_TEAMS, DEFAULT_NUMBER_VIKINGS)
     loadGame(number_teams_and_vikings[0], number_teams_and_vikings[1])

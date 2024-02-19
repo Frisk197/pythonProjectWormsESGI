@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 # ESGI - PARIS
 # 3RVJV - 2023/2024
@@ -41,9 +42,33 @@ DOWN_ARROW = pygame.image.load('images/indication_arrows/down-arrow.png')
 LEFT_ARROW = pygame.image.load('images/indication_arrows/left-arrow.png')
 RIGHT_ARROW = pygame.image.load('images/indication_arrows/right-arrow.png')
 
+SKY_BG = pygame.image.load('images/asset/sky.png')
+SKY_BG = pygame.transform.scale(SKY_BG, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+SKY_BG_MENU = pygame.image.load('images/asset/sky_menu.png')
+SKY_BG_MENU = pygame.transform.scale(SKY_BG_MENU, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+
+# random
+
 class Colors:
     RED = (255, 0, 0)
     GREEN = (0, 255, 0)
     BLUE = (0, 0, 255)
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
+    SKY_BLUE = (40, 180, 255)
+
+    class TERRAIN:
+        GRASS2 = (80, 181, 156)
+        GRASS = (120, 200, 120)
+        SAND = (242, 209, 107)
+        SNOW = (176, 237, 246)
+
+
+TERRAIN_COLOR = random.choice([
+            Colors.TERRAIN.GRASS2,
+            Colors.TERRAIN.GRASS,
+            Colors.TERRAIN.SAND,
+            Colors.TERRAIN.SNOW
+        ])
