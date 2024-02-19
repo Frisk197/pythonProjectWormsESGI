@@ -432,7 +432,7 @@ def loadGame(number_teams, number_vikings):
         ###
 
         hp = font.render(str(created_teams[teamPlaying].vikings[selectedWorm].health), True, Colors.GREEN)
-        screen.blit(hp, (SCREEN_WIDTH - hp.get_width(), hp.get_height() - hp.get_height()))
+        screen.blit(hp, (SCREEN_WIDTH - hp.get_width(), hp.get_height()))
 
 
         for viking in vikings:
