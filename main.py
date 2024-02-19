@@ -2,7 +2,7 @@ import pygame
 
 from setting import *
 from terrain_generation import genWorldDestructible, drawDestructibleWorldFullOptimized
-from character import Team
+from character import Team, Rocket, get_angle
 
 
 def loadMainMenu(teams, vikings):
@@ -211,8 +211,6 @@ def winScreen(team):
 
 
 def loadGame(number_teams, number_vikings):
-    running_game = True
-
     map = genWorldDestructible()
     polygone_map = drawDestructibleWorldFullOptimized(map)
 
@@ -221,10 +219,7 @@ def loadGame(number_teams, number_vikings):
     created_teams = createTeams(number_teams, number_vikings)
     placeVikings(created_teams)
 
-    vikings = []
-    for team in created_teams:
-        for viking in team.vikings:
-            vikings.append(viking)
+    vikings = [viking for team in created_teams for viking in team.vikings]
 
     teamPlaying = 0
 
@@ -241,7 +236,25 @@ def loadGame(number_teams, number_vikings):
     if DEBUG_ENABLED:
         mouse0Pressed = False
 
+    last_time = pygame.time.get_ticks()
+    running_game = True
+
+    rocket = Rocket(100, 100, 180, 15, 9.8, 2, 0.75)
+
     while running_game:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running_game = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:  # Clic gauche de la souris
+                    # Récupérer la position du clic de souris
+                    mouse_position = pygame.mouse.get_pos()
+                    # Récupérer la position du premier viking de la première équipe
+                    viking_position = vikings[0].position
+                    # Calculer l'angle entre le Viking et la position du clic de souris
+                    angle = get_angle((viking_position.x, viking_position.y), mouse_position)
+                    # Créer la roquette avec l'angle sélectionné
+                    rocket = Rocket(viking_position.x, viking_position.y-viking.image.get_height(), angle+180, 20, 9.8, 2, 0.75)
 
         # draw full map
         screen.fill(Colors.BLACK)
@@ -273,37 +286,23 @@ def loadGame(number_teams, number_vikings):
         screen.blit(fps_text, (0, 0))
         #
 
+        current_time = pygame.time.get_ticks()
+        delta_time = (current_time - last_time) / 1000.0
+        last_time = current_time
+
+
+
+        rocket.update(delta_time)
+        rocket.draw(screen)
+        print(f"Position : ({rocket.x}, {rocket.y})")
+
         key = pygame.key.get_pressed()
 
+        vikings[0].move(key, delta_time, map)
 
-        ###   GAME
-
-        # check for a winner
-        win = winCheck(number_teams, number_vikings, created_teams)
-        if win is not None:
-            running_game = False
-            winScreen(win)
-        #
-
-        # end round and select next team
-        if key[pygame.K_e] and not ePressed:
-            ePressed = True
-            timerStarted = False
-            teamPlaying += 1
-            if teamPlaying > number_teams - 1:
-                teamPlaying = 0
-            nbVikingsOK = 0
-            while nbVikingsOK == 0:
-                for eVikings in created_teams[teamPlaying].vikings:
-                    if eVikings.health > 0:
-                        nbVikingsOK += 1
-                if nbVikingsOK == 0:
-                    teamPlaying += 1
-                    if teamPlaying > number_teams - 1:
-                        teamPlaying = 0
-        if not key[pygame.K_e]:
-            ePressed = False
-        #
+        if key[pygame.K_DELETE]:
+            vikings[0].thereWasGround = False
+            vikings[0].jumping = False
 
         # handle timer
         if (key[pygame.K_q] or key[pygame.K_d] or key[pygame.K_z] or key[pygame.K_SPACE]) and not timerStarted:
@@ -344,6 +343,7 @@ def loadGame(number_teams, number_vikings):
 
 
         for viking in vikings:
+            # viking.move(key, delta_time, map)
             created_teams[teamPlaying].vikings[selectedWorm].move(key, remainingTime)
             viking.doMath(map)
             viking.draw()
