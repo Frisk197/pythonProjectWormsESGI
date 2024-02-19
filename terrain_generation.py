@@ -27,13 +27,20 @@ def drawDestructibleWorldFullOptimized(bitMap):
     polygoneMap = []
     x = 0
     y = int(SCREEN_HEIGHT / TILE_SIZE) - 1
+    lastX = 0
+    lastY = int(SCREEN_HEIGHT / TILE_SIZE) - 1
     polygoneMap.append((x, y))
     for x in range(int(SCREEN_WIDTH / TILE_SIZE)):
         while bitMap[x][y]:
             y -= 1
         while not bitMap[x][y]:
             y += 1
-        polygoneMap.append((x * TILE_SIZE, y * TILE_SIZE))
+        if lastY != y:
+            polygoneMap.append((lastX * TILE_SIZE, lastY * TILE_SIZE))
+        lastX = x
+        lastY = y
+    polygoneMap.append((int(SCREEN_WIDTH/TILE_SIZE), lastY * TILE_SIZE))
     polygoneMap.append((SCREEN_WIDTH, SCREEN_HEIGHT))
     polygoneMap.append((0, SCREEN_HEIGHT))
+    # print(len(polygoneMap))
     return polygoneMap
