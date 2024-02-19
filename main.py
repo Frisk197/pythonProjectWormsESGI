@@ -28,13 +28,13 @@ def loadMainMenu(teams, vikings):
             opacity = 0
             opacity_up = True
 
-        screen.fill(Colors.BLACK)
+        screen.blit(SKY_BG_MENU, SKY_BG_MENU.get_rect())
 
         font = pygame.font.SysFont('', 70)
 
-        line1 = font.render(f"équipes: {teams} ", True, Colors.RED)
-        line2 = font.render(f"vikings par équipes: {vikings} ", True, Colors.RED)
-        line3 = font.render('Appuyez sur ENTRER pour commencer', True, (Colors.RED[0] * opacity, 0, 0))
+        line1 = font.render(f"équipes: {teams} ", True, Colors.BLACK)
+        line2 = font.render(f"vikings par équipes: {vikings} ", True, Colors.BLACK)
+        line3 = font.render('Appuyez sur ENTRER pour commencer', True, (Colors.WHITE[0] * opacity, Colors.WHITE[1] * opacity, Colors.WHITE[2] * opacity))
 
         screen.blit(line1, ((SCREEN_WIDTH / 2) - (line1.get_width() / 2) - 50, (SCREEN_HEIGHT / 2) - (line1.get_height())))
         screen.blit(UP_ARROW, ((SCREEN_WIDTH / 2) + (line1.get_width() / 2), (SCREEN_HEIGHT / 2) - (line1.get_height() * 1.5)))
@@ -147,8 +147,8 @@ def loadGame(number_teams, number_vikings):
 
     while running_game:
 
-        screen.fill(Colors.BLACK)
-        pygame.draw.polygon(screen, Colors.RED, polygone_map)
+        screen.blit(SKY_BG, SKY_BG.get_rect())
+        pygame.draw.polygon(screen, TERRAIN_COLOR, polygone_map)
 
         clock.tick()
         font = pygame.font.SysFont('', 70)
