@@ -258,14 +258,15 @@ def loadGame(number_teams, number_vikings):
     while running_game:
         mousePressed = pygame.mouse.get_pressed(num_buttons=3)
         if mousePressed[0] and not rocketLaunched:
-            # print('ça clique fort')
-            # Récupérer la position du clic de souris
-            mouse_position = pygame.mouse.get_pos()
-            # Calculer l'angle entre le Viking et la position du clic de souris
-            angle = get_angle((created_teams[teamPlaying].vikings[selectedWorm].position.x, created_teams[teamPlaying].vikings[selectedWorm].position.y), mouse_position)
-            # Créer la roquette avec l'angle sélectionné
-            rocket = Rocket(created_teams[teamPlaying].vikings[selectedWorm].position.x, created_teams[teamPlaying].vikings[selectedWorm].position.y - created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle+180, 20, 9.8, 2, 0.75)
-            rocketLaunched = True
+            if created_teams[teamPlaying].vikings[selectedWorm].rpg7_visible:  # Vérifiez si le RPG7 est visible
+                # print('ça clique fort')
+                # Récupérer la position du clic de souris
+                mouse_position = pygame.mouse.get_pos()
+                # Calculer l'angle entre le Viking et la position du clic de souris
+                angle = get_angle((created_teams[teamPlaying].vikings[selectedWorm].position.x, created_teams[teamPlaying].vikings[selectedWorm].position.y), mouse_position)
+                # Créer la roquette avec l'angle sélectionné
+                rocket = Rocket(created_teams[teamPlaying].vikings[selectedWorm].position.x, created_teams[teamPlaying].vikings[selectedWorm].position.y - created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle+180, 20, 9.8, 2, 0.75)
+                rocketLaunched = True
 
 
 
