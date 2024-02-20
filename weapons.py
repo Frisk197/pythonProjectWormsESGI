@@ -13,6 +13,7 @@ class Rocket:
         self.exploded = False
         self.drag_coefficient = drag_coefficient  # Coefficient de traînée
         self.original_image = pygame.image.load("images/weapons/Rocket.png")
+        self.flipped = False
         self.image = pygame.transform.scale(self.original_image, (int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
         self.rect = self.image.get_rect()
 
@@ -45,6 +46,10 @@ class Rocket:
     def draw(self):
         screen.blit(self.image, (self.x, self.y))
 
+    def getFlipped(self, flipped):
+        self.flipped = flipped
+        self.image = pygame.transform.flip(self.image, True, False)
+
 
 def get_angle(viking_position, mouse_position):
     delta_x = mouse_position[0] - viking_position[0]
@@ -60,6 +65,7 @@ class RPG7:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        self.flipped = False
         self.original_image = pygame.image.load("images/weapons/Rpg7.png")
         self.image = pygame.transform.scale(self.original_image, (
         int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
@@ -67,6 +73,10 @@ class RPG7:
 
     def draw(self):
         screen.blit(self.image, (self.x, self.y))
+
+    def getFlipped(self, flipped):
+        self.flipped = flipped
+        self.image = pygame.transform.flip(self.image, True, False)
 
 
 class Grenade:

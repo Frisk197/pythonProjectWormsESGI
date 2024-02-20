@@ -136,6 +136,7 @@ def placeVikings(teams):
 
         if random.choice([True, False]):
             viking.getFlipped(True)
+            viking.rpg7.getFlipped(True)
 
 
 def perforateBitMap(center, bitMap):
@@ -294,11 +295,17 @@ def loadGame(number_teams, number_vikings):
                                created_teams[teamPlaying].vikings[selectedWorm].position.y), mouse_position)
 
             if mousePressed[0] and not rocketLaunched and not grenadeLaunched and rocketSelected and not endRound:
-
                 rocket = Rocket(created_teams[teamPlaying].vikings[selectedWorm].position.x,
                                 created_teams[teamPlaying].vikings[selectedWorm].position.y -
-                                created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle + 180,
+                                created_teams[teamPlaying].vikings[selectedWorm].image.get_height(),
+                                angle + 180,
                                 20, 9.8, 2, 0.75)
+
+                if angle < 75 or angle > 270:
+                    if not created_teams[teamPlaying].vikings[selectedWorm].flipped:
+                        created_teams[teamPlaying].vikings[selectedWorm].getFlipped(True)
+                        created_teams[teamPlaying].vikings[selectedWorm].rpg7.getFlipped(True)
+                    rocket.getFlipped(True)
                 rocketLaunched = True
 
             elif mousePressed[0] and not rocketLaunched and not grenadeLaunched and not rocketSelected and not endRound:
@@ -359,10 +366,6 @@ def loadGame(number_teams, number_vikings):
                                 viking2.position.y - rocket.y) < EXPLOSION_RADIUS:
                             viking2.position.x = viking2.position.x + ((viking2.position.x - rocket.x) * 2.5)
                             viking2.position.y = viking2.position.y + ((viking2.position.y - rocket.y) * 2.5)
-                            print(str(abs(viking2.position.x - rocket.x)) + ' ' + str(
-                                abs(viking2.position.y - rocket.y)))
-                            print(str((abs(viking2.position.x - rocket.x) + abs(
-                                viking2.position.y - rocket.y)) / 2))
                             viking2.health -= (100 - int(
                                 (abs(viking2.position.x - rocket.x) + abs(
                                     viking2.position.y - rocket.y)) / 2))
@@ -392,8 +395,6 @@ def loadGame(number_teams, number_vikings):
                                 viking2.position.y - grenade.position.y) < EXPLOSION_RADIUS:
                             viking2.position.x = viking2.position.x + ((viking2.position.x - grenade.position.x) * 1.5)
                             viking2.position.y = viking2.position.y + ((viking2.position.y - grenade.position.y) * 1.5)
-                            print(str(abs(viking2.position.x - grenade.position.x)) + ' ' + str(abs(viking2.position.y - grenade.position.y)))
-                            print(str((abs(viking2.position.x - grenade.position.x) + abs(viking2.position.y - grenade.position.y)) / 2))
                             viking2.health -= (grenade.damage - int(
                                 (abs(viking2.position.x - grenade.position.x) + abs(viking2.position.y - grenade.position.y)) / 2))
                 grenadeLaunched = False
@@ -523,7 +524,6 @@ def loadGame(number_teams, number_vikings):
                     grenade.position.y = created_teams[teamPlaying].vikings[selectedWorm].position.y
                 viking.doMath(map)
                 viking.draw()
-        print(areTheyFalling)
 
         screen.blit(DOWN_ARROW, ((created_teams[teamPlaying].vikings[selectedWorm].position.x + int(
             created_teams[teamPlaying].vikings[selectedWorm].image.get_width() / 2)) - int(DOWN_ARROW.get_width() / 2),
