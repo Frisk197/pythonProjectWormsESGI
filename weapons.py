@@ -1,23 +1,38 @@
 from setting import *
 from common_class import Position
 
+
+def getAngle(viking_position, mouse_position):
+    delta_x = mouse_position[0] - viking_position[0]
+    delta_y = mouse_position[1] - viking_position[1]
+    angle_radians = math.atan2(delta_y, delta_x)
+    angle_degrees = math.degrees(angle_radians)
+    if angle_degrees < 0:
+        angle_degrees += 360
+    return angle_degrees
+
+
 class Rocket:
     def __init__(self, x, y, angle, force, gravity, wind, drag_coefficient):
         self.position = Position(x, y)
         self.angle = math.radians(angle)
+
         self.force = force
         self.gravity = gravity
         self.wind = wind
+        self.drag_coefficient = drag_coefficient  # Coefficient de traînée
+
         self.damage = 100
         self.explosion_radius = 10
         self.exploded = False
-        self.drag_coefficient = drag_coefficient  # Coefficient de traînée
-        self.original_image = pygame.image.load("images/weapons/Rocket.png")
+
         self.flipped = False
-        self.image = pygame.transform.scale(self.original_image, (int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
+        self.original_image = pygame.image.load("images/weapons/Rocket.png")
+        self.image = pygame.transform.scale(self.original_image, (
+            int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
         self.rect = self.image.get_rect()
 
-    def update(self, delta_time, bitMap):
+    def update(self, delta_time, bit_map):
         if not self.exploded:
             if not self.exploded:
                 time = pygame.time.get_ticks() / 1000
@@ -31,12 +46,13 @@ class Rocket:
                 self.position.x += (force_x + drag_force_x) * delta_time
                 self.position.y += (force_y + drag_force_y + self.gravity) * delta_time + self.wind * delta_time
 
-            if self.position.y <= 0 or self.position.y >= SCREEN_HEIGHT or self.position.x <= 0 or self.position.x >= SCREEN_WIDTH or self.check_collision(
-                    bitMap):
+            if (self.position.y <= 0 or self.position.x <= 0 or
+                    self.position.y >= SCREEN_HEIGHT or self.position.x >= SCREEN_WIDTH or
+                    self.checkCollision(bit_map)):
                 self.explode()
 
-    def check_collision(self, bitMap):
-        if bitMap[int(self.position.x)][int(self.position.y)] == 1:
+    def checkCollision(self, bit_map):
+        if bit_map[int(self.position.x)][int(self.position.y)] == 1:
             return True
         return False
 
@@ -51,23 +67,13 @@ class Rocket:
         self.image = pygame.transform.flip(self.image, True, False)
 
 
-def get_angle(viking_position, mouse_position):
-    delta_x = mouse_position[0] - viking_position[0]
-    delta_y = mouse_position[1] - viking_position[1]
-    angle_radians = math.atan2(delta_y, delta_x)
-    angle_degrees = math.degrees(angle_radians)
-    if angle_degrees < 0:
-        angle_degrees += 360
-    return angle_degrees
-
-
 class RPG7:
     def __init__(self, x, y):
         self.position = Position(x, y)
         self.flipped = False
         self.original_image = pygame.image.load("images/weapons/Rpg7.png")
         self.image = pygame.transform.scale(self.original_image, (
-        int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
+            int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
         self.rect = self.image.get_rect()
 
     def draw(self):
@@ -95,9 +101,9 @@ class Grenade:
         self.damage = 50
         self.timer = 5
 
-        self.isTimeStarted = False
-        self.timeStarted = 0
-        self.remainingTime = 0
+        self.is_time_started = False
+        self.time_started = 0
+        self.remaining_time = 0
 
         self.falling = True
         self.preview_trajectory = False
@@ -106,26 +112,28 @@ class Grenade:
         self.angle = math.radians(angle)
         self.exploded = False
 
-        self.raw_image = pygame.image.load(f"images/weapons/Grenade.png")
-        self.image = pygame.transform.scale(self.raw_image, (int(self.raw_image.get_width() * SCALE_VIKING), int(self.raw_image.get_height() * SCALE_VIKING)))
+        self.original_image = pygame.image.load(f"images/weapons/Grenade.png")
+        self.image = pygame.transform.scale(self.original_image, (
+            int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
         self.rect = self.image.get_rect()
 
     def update(self, map):
 
-        if not self.isTimeStarted:
-            self.isTimeStarted = True
-            self.timeStarted = pygame.time.get_ticks()
+        if not self.is_time_started:
+            self.is_time_started = True
+            self.time_started = pygame.time.get_ticks()
 
-        if self.isTimeStarted:
-            self.remainingTime = self.timer - ((pygame.time.get_ticks() - self.timeStarted) / 1000)
-            if self.remainingTime <= 0:
-                self.remainingTime = 0
+        if self.is_time_started:
+            self.remaining_time = self.timer - ((pygame.time.get_ticks() - self.time_started) / 1000)
+            if self.remaining_time <= 0:
+                self.remaining_time = 0
                 self.explode()
 
-        if self.position.y <= 0 or self.position.y >= SCREEN_HEIGHT or self.position.x <= 0 or self.position.x >= SCREEN_WIDTH or self.check_collision(
-                map):
+        if (self.position.y <= 0 or self.position.x <= 0 or
+                self.position.y >= SCREEN_HEIGHT or self.position.x >= SCREEN_WIDTH or
+                self.checkCollision(map)):
             self.falling = False
-            while self.check_collision(map):
+            while self.checkCollision(map):
                 self.position.y -= 1
             return
 
@@ -145,7 +153,7 @@ class Grenade:
             self.position.x += dx
             self.position.y += dy
 
-        # if go outside map
+            # if go outside map
             self.capXandY()
 
     def capXandY(self):
@@ -165,8 +173,8 @@ class Grenade:
             self.position.y = 1
             self.explode()
 
-    def check_collision(self, bitMap):
-        if bitMap[int(self.position.x)][int(self.position.y)] == 1:
+    def checkCollision(self, bit_map):
+        if bit_map[int(self.position.x)][int(self.position.y)] == 1:
             return True
         return False
 
@@ -180,15 +188,15 @@ class Grenade:
             for point in self.preview_points:
                 pygame.draw.circle(screen, Colors.WHITE, (int(point[0]), int(point[1])), 2)
 
-    def start_preview_trajectory(self):
+    def startPreviewTrajectory(self):
         self.preview_trajectory = True
         self.preview_points.clear()
 
-    def stop_preview_trajectory(self):
+    def stopPreviewTrajectory(self):
         self.preview_trajectory = False
         self.preview_points.clear()
 
-    def calculate_trajectory(self, map):
+    def calculateTrajectory(self, map):
         simulated_position = Position(self.position.x, self.position.y, speed_x=self.position.speed_x,
                                       speed_y=self.position.speed_y, gravity=self.position.gravity)
 
@@ -208,16 +216,15 @@ class Grenade:
             dx = math.cos(self.angle) * simulated_position.speed_x
             dy = math.sin(self.angle) * simulated_position.speed_y - GRAVITY
 
-            print((math.cos(self.angle), math.sin(self.angle)))
+            # print((math.cos(self.angle), math.sin(self.angle)))
 
-            if (math.sin(self.angle) < 1):
+            if math.sin(self.angle) < 1:
                 dy = 1 * simulated_position.speed_y - GRAVITY
 
-            if (math.cos(self.angle) > 0.7):
+            if math.cos(self.angle) > 0.7:
                 dx = 0.7 * simulated_position.speed_x
-            if (math.cos(self.angle) < -0.7):
+            if math.cos(self.angle) < -0.7:
                 dx = -0.7 * simulated_position.speed_x
-            #if (math.sin(self.angle) > 1):
 
             if map[int(simulated_position.x / TILE_SIZE)][int(simulated_position.y / TILE_SIZE)] == 1:
                 simulated_position.speed_x = 0
@@ -228,4 +235,3 @@ class Grenade:
             simulated_position.y += dy
 
             self.preview_points.append((simulated_position.x, simulated_position.y))
-
