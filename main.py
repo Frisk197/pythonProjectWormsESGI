@@ -190,15 +190,18 @@ def bresenham_circle(x0, y0, radius, bitMap):
             err += 1 - 2 * x
 
 
-def explosion(teams, weapon, holesCoordinates):
+def explosion(holesCoordinates, weapon, teams, map):
     perforateBitMap((weapon.position.x, weapon.position.y), map)
     holesCoordinates.append((weapon.position.x, weapon.position.y))
     for vikings2 in teams:
         for viking2 in vikings2.vikings:
-            if abs(viking2.position.x - weapon.position.x) < (EXPLOSION_RADIUS + PERFORATION_OFFSET) and abs(
-                    viking2.position.y - weapon.position.y) < EXPLOSION_RADIUS:
-                viking2.health -= (100 - int(
-                    (abs(viking2.position.x - weapon.position.x) + abs(viking2.position.y - weapon.position.y)) / 2))
+            if (abs(viking2.position.x - weapon.position.x) < (EXPLOSION_RADIUS + PERFORATION_OFFSET) and
+                    abs(viking2.position.y - weapon.position.y) < EXPLOSION_RADIUS):
+                viking2.position.x = viking2.position.x + ((viking2.position.x - weapon.position.x) * 2.5)
+                viking2.position.y = viking2.position.y + ((viking2.position.y - weapon.position.y) * 2.5)
+                viking2.health -= (weapon.damage - int(
+                    (abs(viking2.position.x - weapon.position.x) + abs(
+                        viking2.position.y - weapon.position.y)) / 2))
     return holesCoordinates
 
 
@@ -310,8 +313,8 @@ def loadGame(number_teams, number_vikings):
 
             elif mousePressed[0] and not rocketLaunched and not grenadeLaunched and not rocketSelected and not endRound:
                 grenade = Grenade(created_teams[teamPlaying].vikings[selectedWorm].position.x,
-                                created_teams[teamPlaying].vikings[selectedWorm].position.y + 10 -
-                                created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle + 180,
+                                  created_teams[teamPlaying].vikings[selectedWorm].position.y + 10 -
+                                  created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle,
                                   abs(created_teams[teamPlaying].vikings[selectedWorm].position.x - mouse_position[0]),
                                   abs(created_teams[teamPlaying].vikings[selectedWorm].position.y - mouse_position[1]))
                 grenadeLaunched = True
@@ -319,7 +322,7 @@ def loadGame(number_teams, number_vikings):
             if mousePressed[2] and not grenadeLaunched and not rocketLaunched and not rocketSelected:
                 fakeGrenade = Grenade(created_teams[teamPlaying].vikings[selectedWorm].position.x,
                                       created_teams[teamPlaying].vikings[selectedWorm].position.y + 10 -
-                                      created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle + 180,
+                                      created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle,
                                       abs(created_teams[teamPlaying].vikings[selectedWorm].position.x - mouse_position[0]),
                                       abs(created_teams[teamPlaying].vikings[selectedWorm].position.y - mouse_position[1]))
                 aimGrenadeLaunched = True
@@ -357,19 +360,7 @@ def loadGame(number_teams, number_vikings):
             rocket.update(delta_time, map)
             rocket.draw()
             if rocket.exploded:
-                perforateBitMap((rocket.x, rocket.y), map)
-                holesCoordinates.append((rocket.x, rocket.y))
-                for vikings2 in created_teams:
-                    for viking2 in vikings2.vikings:
-                        if abs(viking2.position.x - rocket.x) < (
-                                EXPLOSION_RADIUS + PERFORATION_OFFSET) and abs(
-                                viking2.position.y - rocket.y) < EXPLOSION_RADIUS:
-                            viking2.position.x = viking2.position.x + ((viking2.position.x - rocket.x) * 2.5)
-                            viking2.position.y = viking2.position.y + ((viking2.position.y - rocket.y) * 2.5)
-                            viking2.health -= (100 - int(
-                                (abs(viking2.position.x - rocket.x) + abs(
-                                    viking2.position.y - rocket.y)) / 2))
-
+                holesCoordinates = explosion(holesCoordinates, rocket, created_teams, map)
                 rocketLaunched = False
                 rocket = None
                 endRound = True
@@ -387,16 +378,7 @@ def loadGame(number_teams, number_vikings):
             grenade.update(map)
             grenade.draw()
             if grenade.exploded:
-                perforateBitMap((grenade.position.x, grenade.position.y), map)
-                holesCoordinates.append((grenade.position.x, grenade.position.y))
-                for vikings2 in created_teams:
-                    for viking2 in vikings2.vikings:
-                        if abs(viking2.position.x - grenade.position.x) < (EXPLOSION_RADIUS + PERFORATION_OFFSET) and abs(
-                                viking2.position.y - grenade.position.y) < EXPLOSION_RADIUS:
-                            viking2.position.x = viking2.position.x + ((viking2.position.x - grenade.position.x) * 1.5)
-                            viking2.position.y = viking2.position.y + ((viking2.position.y - grenade.position.y) * 1.5)
-                            viking2.health -= (grenade.damage - int(
-                                (abs(viking2.position.x - grenade.position.x) + abs(viking2.position.y - grenade.position.y)) / 2))
+                holesCoordinates = explosion(holesCoordinates, grenade, created_teams, map)
                 grenadeLaunched = False
                 grenade = None
                 endRound = True

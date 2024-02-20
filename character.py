@@ -58,7 +58,6 @@ class Viking:
         # falling calculations
         if map[int(self.position.x + int(self.rect.width / 2))][int(self.position.y + 1)] == 0 and not self.jumping:
             if not self.falling:
-                print('start falling')
                 self.setupFalling(self.position.y)
             time = (pygame.time.get_ticks() - self.initialTime) / 1000
             self.position.y = int((-0.5 * self.gravity) * (time * time) + (self.position.y * time) + self.initialY)
@@ -73,29 +72,12 @@ class Viking:
         if map[int(self.position.x + int(self.rect.width / 2))][
             int(self.position.y + 1)] == 1 and self.falling and not self.jumping:
             self.falling = False
-            print('stop falling')
 
     def setupFalling(self, initialY):
         self.falling = True
         self.gravity = GRAVITY
         self.initialY = initialY
         self.initialTime = pygame.time.get_ticks()
-
-    # def shoot(self):
-    #     if self.stock_rocket > 0:
-    #         self.stock_rocket -= 1
-    #     else:
-    #         print(f"{self.name} has no rocket")
-
-    # def takeDamage(self, damage):
-    #     self.health -= damage
-    #     if self.health <= 0:
-    #         print(f"{self.name} died")
-    #     else:
-    #         print(f"{self.name} has lost {damage} health")
-
-    # def reload(self):
-    #     self.stock_rocket = 5
 
     def getFlipped(self, flipped):
         self.flipped = flipped
@@ -145,8 +127,8 @@ class Viking:
             self.draw_RPG7()
 
     def draw_RPG7(self):
-        self.rpg7.x = self.position.x - 10
-        self.rpg7.y = self.position.y - 30
+        self.rpg7.position.x = self.position.x - 10
+        self.rpg7.position.y = self.position.y - 30
         self.rpg7.draw()
 
     def setupJump(self, initialY, jump_velocity):

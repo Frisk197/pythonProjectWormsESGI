@@ -3,12 +3,12 @@ from common_class import Position
 
 class Rocket:
     def __init__(self, x, y, angle, force, gravity, wind, drag_coefficient):
-        self.x = x
-        self.y = y
+        self.position = Position(x, y)
         self.angle = math.radians(angle)
         self.force = force
         self.gravity = gravity
         self.wind = wind
+        self.damage = 100
         self.explosion_radius = 10
         self.exploded = False
         self.drag_coefficient = drag_coefficient  # Coefficient de traînée
@@ -28,15 +28,15 @@ class Rocket:
                 drag_force_x = -0.5 * self.drag_coefficient * self.force * self.force * math.cos(self.angle)
                 drag_force_y = -0.5 * self.drag_coefficient * self.force * self.force * math.sin(self.angle)
 
-                self.x += (force_x + drag_force_x) * delta_time
-                self.y += (force_y + drag_force_y + self.gravity) * delta_time + self.wind * delta_time
+                self.position.x += (force_x + drag_force_x) * delta_time
+                self.position.y += (force_y + drag_force_y + self.gravity) * delta_time + self.wind * delta_time
 
-            if self.y <= 0 or self.y >= SCREEN_HEIGHT or self.x <= 0 or self.x >= SCREEN_WIDTH or self.check_collision(
+            if self.position.y <= 0 or self.position.y >= SCREEN_HEIGHT or self.position.x <= 0 or self.position.x >= SCREEN_WIDTH or self.check_collision(
                     bitMap):
                 self.explode()
 
     def check_collision(self, bitMap):
-        if bitMap[int(self.x)][int(self.y)] == 1:
+        if bitMap[int(self.position.x)][int(self.position.y)] == 1:
             return True
         return False
 
@@ -44,7 +44,7 @@ class Rocket:
         self.exploded = True
 
     def draw(self):
-        screen.blit(self.image, (self.x, self.y))
+        screen.blit(self.image, (self.position.x, self.position.y))
 
     def getFlipped(self, flipped):
         self.flipped = flipped
@@ -63,8 +63,7 @@ def get_angle(viking_position, mouse_position):
 
 class RPG7:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.position = Position(x, y)
         self.flipped = False
         self.original_image = pygame.image.load("images/weapons/Rpg7.png")
         self.image = pygame.transform.scale(self.original_image, (
@@ -72,7 +71,7 @@ class RPG7:
         self.rect = self.image.get_rect()
 
     def draw(self):
-        screen.blit(self.image, (self.x, self.y))
+        screen.blit(self.image, (self.position.x, self.position.y))
 
     def getFlipped(self, flipped):
         self.flipped = flipped
@@ -130,23 +129,17 @@ class Grenade:
                 self.position.y -= 1
             return
 
-        # if touch the ground
-        # if map[int(self.position.x / TILE_SIZE)][int(self.position.y / TILE_SIZE)] == 1:
-        #    self.position.speed_x = 0
-        #    self.position.speed_y = 0
-        #    self.falling = False
-        #    return
         if self.falling:
             self.position.speed_y += self.position.gravity
             dx = math.cos(self.angle) * self.position.speed_x
             dy = math.sin(self.angle) * self.position.speed_y - GRAVITY
 
-            if (math.sin(self.angle) < 1):
+            if math.sin(self.angle) < 1:
                 dy = 1 * self.position.speed_y - GRAVITY
 
-            if (math.cos(self.angle) > 0.7):
+            if math.cos(self.angle) > 0.7:
                 dx = 0.7 * self.position.speed_x
-            if (math.cos(self.angle) < -0.7):
+            if math.cos(self.angle) < -0.7:
                 dx = -0.7 * self.position.speed_x
 
             self.position.x += dx
