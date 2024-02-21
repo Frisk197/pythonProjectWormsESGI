@@ -13,7 +13,7 @@ def getAngle(viking_position, mouse_position):
 
 
 class Rocket:
-    def __init__(self, x, y, angle, force, gravity, wind, drag_coefficient):
+    def __init__(self, x, y, angle, force=35, gravity=9.8, wind=2, drag_coefficient=0.75):
         self.position = Position(x, y)
         self.angle = math.radians(angle)
 
@@ -35,8 +35,6 @@ class Rocket:
     def update(self, delta_time, bit_map):
         if not self.exploded:
             if not self.exploded:
-                time = pygame.time.get_ticks() / 1000
-
                 force_x = self.force * math.cos(self.angle)
                 force_y = self.force * math.sin(self.angle)
 

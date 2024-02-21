@@ -12,14 +12,13 @@ class Team:
 
 
 class Viking:
-    def __init__(self, id, name="", health=100, image_path="", flipped=False):
+    def __init__(self, id, name="", health=100, image_path="", flipped=False, speed_x=10):
         self.id = id
         self.name = name
         self.health = health
 
-        self.position = Position(0, 0)
+        self.position = Position(0, 0, speed_x=speed_x)
         self.flipped = flipped
-        self.isMoving = False
         self.jumping = False
         self.falling = False
         self.there_was_ground = False
@@ -33,9 +32,9 @@ class Viking:
         self.rpg7 = RPG7(self.position.x - 10, self.position.y - 30)
         self.rpg7_visible = False
 
-        self.raw_image = pygame.image.load(image_path)
-        self.image = pygame.transform.scale(self.raw_image,
-                                            (int(self.raw_image.get_width() * SCALE_VIKING),int(self.raw_image.get_height() * SCALE_VIKING)))
+        self.original_image = pygame.image.load(image_path)
+        self.image = pygame.transform.scale(self.original_image,
+                                            (int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
         self.image = pygame.transform.flip(self.image, True, False) if self.flipped else self.image
         self.rect = self.image.get_rect()
 
@@ -90,47 +89,40 @@ class Viking:
         self.flipped = flipped
         self.image = pygame.transform.flip(self.image, True, False)
 
-    def move(self, key, delta_time, timer, bitMap, rocketSelected):
+    def move(self, key, delta_time, timer, bit_map, rocket_selected):
         left_movement = key[pygame.K_q]
         right_movement = key[pygame.K_d]
-
-        self.isMoving = False
 
         if not timer <= 0:
             if left_movement:
                 self.position.x -= self.position.speed_x * delta_time
-                self.isMoving: True
                 if self.flipped:
                     self.getFlipped(False)
                     self.rpg7.getFlipped(False)
             if right_movement:
                 self.position.x += self.position.speed_x * delta_time
-                self.isMoving: True
                 if not self.flipped:
                     self.getFlipped(True)
                     self.rpg7.getFlipped(True)
 
         if key[pygame.K_SPACE] and not self.jumping and not self.falling:
-            self.isMoving: True
             self.setupJump(self.position.y, -50)
 
         if self.jumping:
-            self.isMoving: True
             time = (pygame.time.get_ticks() - self.initial_time) / 100
             self.position.y = int((-0.5 * self.gravity) * (time * time) + (self.jump_velocity * time) + self.initial_y)
             if not int(self.position.x + self.image.get_width() / 2) >= int(SCREEN_WIDTH / TILE_SIZE) - 1 and not int(
                     self.position.x + self.image.get_width() / 2) < 0 and not int(self.position.y + 2) >= int(
-                    SCREEN_HEIGHT / TILE_SIZE) - 1 and not bitMap[int(self.position.x + self.image.get_width() / 2)][
+                    SCREEN_HEIGHT / TILE_SIZE) - 1 and not bit_map[int(self.position.x + self.image.get_width() / 2)][
                                                                int(self.position.y + 2)] == 1:
                 self.there_was_ground = False
 
             if not self.position.y > int(
                     SCREEN_HEIGHT / TILE_SIZE) and not self.position.y < 0 and not self.there_was_ground:
-                if bitMap[int(self.position.x + self.image.get_width() / 2)][int(self.position.y + 2)] == 1:
-                    print('stop jumping')
+                if bit_map[int(self.position.x + self.image.get_width() / 2)][int(self.position.y + 2)] == 1:
                     self.jumping = False
 
-        if rocketSelected:
+        if rocket_selected:
             self.draw_RPG7()
 
     def draw_RPG7(self):
