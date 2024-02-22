@@ -1,3 +1,5 @@
+import math
+
 from setting import *
 from common_class import Position
 
@@ -5,9 +7,14 @@ class Rocket:
     def __init__(self, x, y, angle, force, gravity, wind, drag_coefficient):
         self.x = x
         self.y = y
-        self.angle = math.radians(angle)
+        self.initialX = x
+        self.initialY = y
+        self.mouseInitialX = pygame.mouse.get_pos()[0]
+        self.mouseInitialY = pygame.mouse.get_pos()[1]
+        self.initialTime = pygame.time.get_ticks()
+        self.angle = angle * math.pi / 180
         self.force = force
-        self.gravity = gravity
+        self.gravity = GRAVITY
         self.wind = wind
         self.explosion_radius = 10
         self.exploded = False
@@ -19,16 +26,18 @@ class Rocket:
     def update(self, delta_time, bitMap):
         if not self.exploded:
             if not self.exploded:
-                time = pygame.time.get_ticks() / 1000
+                time = (self.initialTime - pygame.time.get_ticks()) / 100
 
                 force_x = self.force * math.cos(self.angle)
                 force_y = self.force * math.sin(self.angle)
 
-                drag_force_x = -0.5 * self.drag_coefficient * self.force * self.force * math.cos(self.angle)
-                drag_force_y = -0.5 * self.drag_coefficient * self.force * self.force * math.sin(self.angle)
+                drag_force_x = force_x * time + self.initialX
+                drag_force_y = -0.5 * -0.3 * time**2 + force_y * time + self.initialY
 
-                self.x += (force_x + drag_force_x) * delta_time
-                self.y += (force_y + drag_force_y + self.gravity) * delta_time + self.wind * delta_time
+                self.x = drag_force_x
+                self.y = drag_force_y
+
+
 
             if self.y <= 0 or self.y >= SCREEN_HEIGHT or self.x <= 0 or self.x >= SCREEN_WIDTH or self.check_collision(
                     bitMap):
@@ -38,6 +47,23 @@ class Rocket:
         if bitMap[int(self.x)][int(self.y)] == 1:
             return True
         return False
+
+    def capXandY(self):
+        # cap x
+        if (self.x + int(self.rect.width / 2)) >= int(SCREEN_WIDTH / TILE_SIZE):
+            self.x = int(SCREEN_WIDTH / TILE_SIZE) - int(self.rect.width / 2) - 1
+            self.explode()
+        if self.x + int(self.rect.width / 2) < 0:
+            self.x = 0 - int(self.rect.width / 2)
+            self.explode()
+        #
+        # cap y
+        if self.y >= int(SCREEN_HEIGHT / TILE_SIZE) - 1:
+            self.y = int(SCREEN_HEIGHT / TILE_SIZE) - 2
+            self.explode()
+        if self.y <= 0:
+            self.y = 1
+            self.explode()
 
     def explode(self):
         self.exploded = True

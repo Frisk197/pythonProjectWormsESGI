@@ -260,6 +260,8 @@ def loadGame(number_teams, number_vikings):
 
     vikings = [viking for team in created_teams for viking in team.vikings]
 
+    tourCounter = 0
+
     teamPlaying = 0
 
     movingStartTime = 0
@@ -420,6 +422,8 @@ def loadGame(number_teams, number_vikings):
             winScreen(win)
 
         if endRound:
+            tourCounter += 1
+            print(tourCounter)
             endRound = False
             timerStarted = False
             teamPlaying += 1
@@ -523,7 +527,7 @@ def loadGame(number_teams, number_vikings):
                     grenade.position.y = created_teams[teamPlaying].vikings[selectedWorm].position.y
                 viking.doMath(map)
                 viking.draw()
-        print(areTheyFalling)
+        # print(areTheyFalling)
 
         screen.blit(DOWN_ARROW, ((created_teams[teamPlaying].vikings[selectedWorm].position.x + int(
             created_teams[teamPlaying].vikings[selectedWorm].image.get_width() / 2)) - int(DOWN_ARROW.get_width() / 2),
