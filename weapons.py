@@ -3,6 +3,7 @@ import math
 from setting import *
 from common_class import Position
 
+
 class Rocket:
     def __init__(self, x, y, angle, force, gravity, wind, drag_coefficient):
         self.x = x
@@ -20,24 +21,23 @@ class Rocket:
         self.exploded = False
         self.drag_coefficient = drag_coefficient  # Coefficient de traînée
         self.original_image = pygame.image.load("images/weapons/Rocket.png")
-        self.image = pygame.transform.scale(self.original_image, (int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
+        self.image = pygame.transform.scale(self.original_image, (
+        int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
         self.rect = self.image.get_rect()
 
     def update(self, delta_time, bitMap):
         if not self.exploded:
             if not self.exploded:
-                time = (self.initialTime - pygame.time.get_ticks()) / 100
+                time = (pygame.time.get_ticks() - self.initialTime) / 1000
 
-                force_x = self.force * math.cos(self.angle)
-                force_y = self.force * math.sin(self.angle)
+                force_x = 330 * math.cos(self.angle)
+                force_y = 330 * math.sin(self.angle)
 
-                drag_force_x = force_x * time + self.initialX
-                drag_force_y = -0.5 * -0.3 * time**2 + force_y * time + self.initialY
+                drag_force_x = force_x * time + self.initialX * self.drag_coefficient
+                drag_force_y = (-0.5 * (-9.8 *10) ) * (time ** 2) + force_y * time + self.initialY
 
                 self.x = drag_force_x
                 self.y = drag_force_y
-
-
 
             if self.y <= 0 or self.y >= SCREEN_HEIGHT or self.x <= 0 or self.x >= SCREEN_WIDTH or self.check_collision(
                     bitMap):
@@ -88,7 +88,7 @@ class RPG7:
         self.y = y
         self.original_image = pygame.image.load("images/weapons/Rpg7.png")
         self.image = pygame.transform.scale(self.original_image, (
-        int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
+            int(self.original_image.get_width() * SCALE_VIKING), int(self.original_image.get_height() * SCALE_VIKING)))
         self.rect = self.image.get_rect()
 
     def draw(self):
@@ -124,7 +124,8 @@ class Grenade:
         self.exploded = False
 
         self.raw_image = pygame.image.load(f"images/weapons/Grenade.png")
-        self.image = pygame.transform.scale(self.raw_image, (int(self.raw_image.get_width() * SCALE_VIKING), int(self.raw_image.get_height() * SCALE_VIKING)))
+        self.image = pygame.transform.scale(self.raw_image, (
+        int(self.raw_image.get_width() * SCALE_VIKING), int(self.raw_image.get_height() * SCALE_VIKING)))
         self.rect = self.image.get_rect()
 
     def update(self, map):
@@ -168,7 +169,7 @@ class Grenade:
             self.position.x += dx
             self.position.y += dy
 
-        # if go outside map
+            # if go outside map
             self.capXandY()
 
     def capXandY(self):
@@ -240,7 +241,7 @@ class Grenade:
                 dx = 0.7 * simulated_position.speed_x
             if (math.cos(self.angle) < -0.7):
                 dx = -0.7 * simulated_position.speed_x
-            #if (math.sin(self.angle) > 1):
+            # if (math.sin(self.angle) > 1):
 
             if map[int(simulated_position.x / TILE_SIZE)][int(simulated_position.y / TILE_SIZE)] == 1:
                 simulated_position.speed_x = 0
@@ -251,4 +252,3 @@ class Grenade:
             simulated_position.y += dy
 
             self.preview_points.append((simulated_position.x, simulated_position.y))
-

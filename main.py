@@ -299,8 +299,8 @@ def loadGame(number_teams, number_vikings):
 
                 rocket = Rocket(created_teams[teamPlaying].vikings[selectedWorm].position.x,
                                 created_teams[teamPlaying].vikings[selectedWorm].position.y -
-                                created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle + 180,
-                                20, 9.8, 2, 0.75)
+                                created_teams[teamPlaying].vikings[selectedWorm].image.get_height(), angle,
+                                50, -9.8, 2, 0.75)
                 rocketLaunched = True
 
             elif mousePressed[0] and not rocketLaunched and not grenadeLaunched and not rocketSelected and not endRound:
