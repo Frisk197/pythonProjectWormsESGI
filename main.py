@@ -1,3 +1,5 @@
+import pygame
+
 from setting import *
 from terrain_generation import genWorldDestructible, drawDestructibleWorldFullOptimized
 from character import Team
@@ -287,7 +289,7 @@ def loadGame(number_teams, number_vikings):
 
         key = pygame.key.get_pressed()
         GET_RPG_OUT = key[pygame.K_UP] or key[pygame.K_r]
-        GET_GRENADE_OUT = key[pygame.K_UP] or key[pygame.K_f]
+        GET_GRENADE_OUT = key[pygame.K_DOWN] or key[pygame.K_f]
 
         if GET_RPG_OUT:
             if aim_grenade_launched:

@@ -128,14 +128,14 @@ class Grenade:
                 self.explode()
 
         if (self.position.y <= 0 or self.position.x <= 0 or
-                self.position.y >= SCREEN_HEIGHT or self.position.x >= SCREEN_WIDTH or
+                self.position.y >= int(SCREEN_HEIGHT / TILE_SIZE) or self.position.x >= int(SCREEN_WIDTH / TILE_SIZE) or
                 self.checkCollision(map)):
             self.falling = False
             while self.checkCollision(map):
                 self.position.y -= 1
             return
 
-        if self.falling:
+        if self.falling and not self.exploded:
             self.position.speed_y += self.position.gravity
             dx = math.cos(self.angle) * self.position.speed_x
             dy = math.sin(self.angle) * self.position.speed_y - GRAVITY
