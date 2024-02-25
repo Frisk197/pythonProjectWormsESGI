@@ -48,15 +48,20 @@ SKY_BG = pygame.transform.scale(SKY_BG, (SCREEN_WIDTH, SCREEN_HEIGHT))
 SKY_BG_MENU = pygame.image.load('images/asset/sky_menu.png')
 SKY_BG_MENU = pygame.transform.scale(SKY_BG_MENU, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
+WIN_BG = pygame.image.load('images/asset/sky_win.png')
+WIN_BG = pygame.transform.scale(WIN_BG, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
-# random
+TITLE_SCREEN = pygame.image.load('images/asset/title_screen.png')
+TITLE_SCREEN = pygame.transform.scale(TITLE_SCREEN, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
 
 class Colors:
-    RED = (255, 0, 0)
+    RED = (255, 40, 72)
     GREEN = (0, 255, 0)
     BLUE = (0, 0, 255)
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
+    YELLOW = (255, 222, 40)
     SKY_BLUE = (40, 180, 255)
 
     class TERRAIN:
